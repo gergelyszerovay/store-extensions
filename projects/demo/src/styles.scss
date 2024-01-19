@@ -1,1 +1,17 @@
 /* You can add global styles to this file, and also import other style files */
+
+.page-link {
+  cursor: pointer;
+}
+
+body {
+  max-width: 920px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+app-ui-pagination {
+  width: 100%;
+  display: block;
+  text-align: center;
+}
