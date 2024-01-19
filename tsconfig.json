@@ -10,6 +10,14 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
+    "paths": {
+      "ngx-mock-component-store": [
+        "./dist/ngx-mock-component-store"
+      ],
+      "ngx-mock-signal-store": [
+        "./dist/ngx-mock-signal-store"
+      ]
+    },
     "esModuleInterop": true,
     "sourceMap": true,
     "declaration": false,
