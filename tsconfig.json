@@ -12,10 +12,12 @@
     "skipLibCheck": true,
     "paths": {
       "ngx-mock-component-store": [
-        "./dist/ngx-mock-component-store"
+/*        "./dist/ngx-mock-component-store" */
+        "./projects/ngx-mock-component-store/src/public-api.ts"
       ],
       "ngx-mock-signal-store": [
-        "./dist/ngx-mock-signal-store"
+/*        "./dist/ngx-mock-signal-store" */
+        "./projects/ngx-mock-signal-store/src/public-api.ts"
       ]
     },
     "esModuleInterop": true,
@@ -30,7 +32,8 @@
     "lib": [
       "ES2022",
       "dom"
-    ]
+    ],
+    "noErrorTruncation": true
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
