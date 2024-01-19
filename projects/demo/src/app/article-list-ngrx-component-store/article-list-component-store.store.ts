@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from "@angular/common/http";
-import { Injectable, inject } from "@angular/core";
+import { Injectable, Signal, inject } from "@angular/core";
 import { ComponentStore, tapResponse } from "@ngrx/component-store";
 import { Observable, switchMap, tap, withLatestFrom } from "rxjs";
 import { DeepReadonly } from "ts-essentials";
@@ -14,6 +14,8 @@ export class ArticleListComponentStore extends ComponentStore<ArticleListState> 
   readonly httpRequestState$: Observable<HttpRequestState> = this.select(state => state.httpRequestState);
   readonly articles$: Observable<DeepReadonly<Articles>> = this.select(state => state.articles);
   readonly articlesCount$: Observable<number> = this.select(state => state.articlesCount);
+
+  readonly $articlesCount: Signal<number> = this.selectSignal(state => state.articlesCount);
 
   readonly totalPages$: Observable<number> = this.select(
     this.articlesCount$, this.pageSize$,

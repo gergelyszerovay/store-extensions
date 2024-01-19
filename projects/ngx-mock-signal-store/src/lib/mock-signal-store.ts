@@ -6,6 +6,8 @@ import { tap } from "rxjs";
 import sinon from "sinon";
 import { SinonSpy } from "sinon";
 
+// mocked signals, but no initial val?
+
 export interface Constructor<ClassType> {
   new (...args: never[]): ClassType;
 }
@@ -13,8 +15,6 @@ export interface Constructor<ClassType> {
 type RxMethod<Input> = ReturnType<typeof rxMethod<Input>>;
 
 type Method<T extends readonly any[] = any[]> = (...args: T) => void;
-
-type InitialState<T> = T extends StateSignal<infer U> ? Partial<U> : never;
 
 export const FAKE = Symbol("FAKE");
 
@@ -37,9 +37,7 @@ export type MockSignalStore<T> = {
     : T[K];
 };
 
-export function asMockSignalStore<T>(s: T): MockSignalStore<T> {
-  return s as MockSignalStore<T>;
-}
+type InitialState<T> = T extends StateSignal<infer U> ? Partial<U> : never;
 
 // -? makes the key required, opposite of ?
 export type SignalKeys<T> = {
@@ -134,4 +132,8 @@ export function provideMockSignalStore<ClassType extends StateSignal<object>>(
       return store as MockSignalStore<ClassType>;;
     },
   };
+}
+
+export function asMockSignalStore<T>(s: T): MockSignalStore<T> {
+  return s as MockSignalStore<T>;
 }
