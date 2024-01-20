@@ -1,12 +1,29 @@
 {
   "name": "ngx-mock-signal-store",
   "version": "0.0.1",
+  "description": "Angular testing libraries for mocking NgRx SignalStore",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gergelyszerovay/mock-stores.git"
+  },
+  "keywords": [
+    "Angular",
+    "Redux",
+    "NgRx",
+    "Schematics",
+    "Local State",
+    "Component State",
+    "State management"
+  ],
+  "author": "Gergely Szerovay",
+  "bugs": {
+    "url": "https://github.com/gergelyszerovay/mock-stores/issues"
+  },
   "peerDependencies": {
-    "@angular/common": "^17.1.0",
-    "@angular/core": "^17.1.0"
+    "rxjs": "~7.8.0",
+    "@ngrx/signals": "^17.1.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"
-  },
-  "sideEffects": false
+  }
 }

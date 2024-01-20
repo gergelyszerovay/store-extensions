@@ -33,9 +33,11 @@
     "@angular-devkit/build-angular": "^17.1.0",
     "@angular/cli": "^17.1.0",
     "@angular/compiler-cli": "^17.1.0",
+    "@testing-library/angular": "^15.1.0",
     "@types/jasmine": "~5.1.0",
     "@types/sinon": "^17.0.3",
     "jasmine-core": "~5.1.0",
+    "jasmine-marbles": "^0.9.2",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
     "karma-coverage": "~2.2.0",
@@ -43,6 +45,7 @@
     "karma-jasmine-html-reporter": "~2.1.0",
     "ng-mocks": "^14.12.1",
     "ng-packagr": "^17.1.0",
+    "rxjs-marbles": "^7.0.1",
     "ts-essentials": "^9.4.1",
     "typescript": "~5.3.2"
   }

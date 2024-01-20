@@ -6,8 +6,6 @@ import { tap } from "rxjs";
 import sinon from "sinon";
 import { SinonSpy } from "sinon";
 
-// mocked signals, but no initial val?
-
 export interface Constructor<ClassType> {
   new (...args: never[]): ClassType;
 }
@@ -49,21 +47,15 @@ type UnwrapSignal<T> = T extends Signal<infer U> ? U : never;
 export type UnwrapSignalStoreProvider<T> = T extends ProviderToken<infer U> ? U : never;
 
 type ProvideMockSignalStoreParams<T> = {
-  initialState?: InitialState<T>,
-  computedInitialValues?: Omit<{
+  initialStatePatch?: InitialState<T>,
+  initialComputedValues?: Omit<{
     [K in SignalKeys<T>]?: UnwrapSignal<T[K]>;
   }, keyof InitialState<T>>,
-  mockComputedSignals?: boolean, // true by default
+  mockComputedSignals?: boolean | 'initialComputedValues', // true by default
   mockMethods?: boolean, // true by default
   mockRxMethods?: boolean, // true by default
   debug?: boolean // false by default
 }
-
-// type SignalStoresList<ClassTypes extends ReadonlyArray<unknown>> = {
-//   [K in keyof ClassTypes]:
-//     | [Constructor<ClassTypes[K]>, ProvideMockSignalStoreParams<ClassTypes[K]>?]
-//     | Constructor<ClassTypes[K]>;
-// };
 
 export function provideMockSignalStore<ClassType extends StateSignal<object>>(
   classConstructor: Constructor<ClassType>,
@@ -96,13 +88,31 @@ export function provideMockSignalStore<ClassType extends StateSignal<object>>(
       }
 
       if (params?.mockComputedSignals !== false) {
-        combinedSignals.forEach((k) => {
-          // @ts-ignore
-          if (isSignal(store[k])) {
-            // @ts-ignore
-            store[k] = signal(params?.computedInitialValues?.[k]);
+        if (params?.mockComputedSignals === 'initialComputedValues') {
+          if (typeof(params?.initialComputedValues) === 'object') {
+            Object.keys(params?.initialComputedValues).forEach((k) => {
+              if (!(combinedSignals as Array<string>).includes(k)) {
+                throw new Error(`${String(k)} should be a computed signal`);
+              }
+              // @ts-ignore
+              store[k] = signal(params?.initialComputedValues?.[k]);
+            });
           }
-        });
+          else {
+            throw new Error('initialComputedValues should be set');
+          }
+        }
+        else {
+          combinedSignals.forEach((k) => {
+            if (params?.initialComputedValues && k in params?.initialComputedValues) {
+              // @ts-ignore
+              store[k] = signal(params?.initialComputedValues?.[k]);
+            }
+            else {
+              throw new Error(`${String(k)} should have an initial value`);
+            }
+          });
+        }
       }
 
       if (params?.mockMethods !== false) {
@@ -119,9 +129,9 @@ export function provideMockSignalStore<ClassType extends StateSignal<object>>(
         });
       }
 
-      if (params?.initialState) {
+      if (params?.initialStatePatch) {
         untracked(() => {
-          patchState(store, s => ({...s, ...params.initialState }));
+          patchState(store, s => ({...s, ...params.initialStatePatch }));
         });
       }
 
@@ -130,7 +140,7 @@ export function provideMockSignalStore<ClassType extends StateSignal<object>>(
       }
 
       return store as MockSignalStore<ClassType>;;
-    },
+    }
   };
 }
 

@@ -20,10 +20,10 @@ describe('ArticleListComponent_SS', () => {
         MockProvider(ArticlesService),
         provideRouter([]),
         provideMockSignalStore(ArticleListSignalStore, {
-          initialState: {
+          initialStatePatch: {
             selectedPage: 1
           },
-          computedInitialValues: {
+          initialComputedValues: {
             totalPages: 10
           }
         })
