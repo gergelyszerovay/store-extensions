@@ -3,3 +3,4 @@
  */
 
 export * from './lib/mock-signal-store';
+export * from './lib/log-signal-store';

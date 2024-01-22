@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Output, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Article } from '../models/article.model';
 
@@ -8,35 +8,38 @@ import { Article } from '../models/article.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule],
   template: `
-<div class="article-preview" *ngIf="article">
-  <div class="article-meta">
-    <a href=""><img [src]="article.author.image" /></a>
-    <div class="info">
-      <a href="" class="author">{{ article.author.username }}</a>
-      <span class="date">{{ article.createdAt | date: 'longDate' }}</span>
+@if (article(); as a) {
+  <div class="article-preview">
+    <div class="article-meta">
+      <a href=""><img [src]="a.author.image" /></a>
+      <div class="info">
+        <a href="" class="author">{{ a.author.username }}</a>
+        <span class="date">{{ a.createdAt | date: 'longDate' }}</span>
+      </div>
+      <button
+        class="btn btn-sm pull-xs-right {{ a.favorited ? 'btn-outline-primary' : 'btn-primary' }}"
+        (click)="toggleFavorite(a)">
+        <i class="ion-heart"></i> {{ a.favoritesCount }}
+      </button>
     </div>
-    <button
-      class="btn btn-sm pull-xs-right {{ article.favorited ? 'btn-outline-primary' : 'btn-primary' }}"
-      (click)="toggleFavorite(article)">
-      <i class="ion-heart"></i> {{ article.favoritesCount }}
-    </button>
+    <a (click)="openArticle.emit(a.slug)" class="preview-link">
+      <h1>{{ a.title }}</h1>
+      <p>{{ a.description }}</p>
+      <span>Read more...</span>
+      <ul class="tag-list">
+        @for (tag of a.tagList; track $index) {
+          <li class="tag-default tag-pill tag-outline">
+            {{ tag }}
+          </li>
+        }
+      </ul>
+    </a>
   </div>
-  <a (click)="openArticle.emit(article.slug)" class="preview-link">
-    <h1>{{ article.title }}</h1>
-    <p>{{ article.description }}</p>
-    <span>Read more...</span>
-    <ul class="tag-list">
-      <li class="tag-default tag-pill tag-outline"
-        *ngFor="let tag of article.tagList">
-        {{ tag }}
-      </li>
-    </ul>
-  </a>
-</div>
+}
   `
 })
 export class UiArticleLisItemComponent {
-  @Input({ required: true }) article!: Article;
+  article = input.required<Article>();
   @Output() openArticle: EventEmitter<string> = new EventEmitter();
   @Output() favorite: EventEmitter<string> = new EventEmitter();
   @Output() unFavorite: EventEmitter<string> = new EventEmitter();
