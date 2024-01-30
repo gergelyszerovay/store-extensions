@@ -1,4 +1,4 @@
-import { HttpRequestState } from "../services/articles.service";
+import { HttpRequestState, HttpRequestStates } from "../services/articles.service";
 import { Articles } from "./article.model";
 
 export type RouteParamsPaginatonState = {
@@ -20,7 +20,7 @@ export const initialArticleListState: ArticleListState = {
   selectedPage: 0,
   pageSize: 3,
 
-  httpRequestState: 'EMPTY',
+  httpRequestState: HttpRequestStates.EMPTY,
 
   articles: [],
   articlesCount: 0

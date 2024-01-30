@@ -7,7 +7,7 @@ import { HttpRequestStateErrorPipe } from '../services/articles.service';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, Subject, isObservable, take } from 'rxjs';
-import { FAKE, asMockComponentStore, provideMockComponentStore } from 'ngx-mock-component-store';
+import { FAKE_RX_CS, asMockComponentStore, provideMockComponentStore } from 'ngx-mock-component-store';
 
 function readFirstSync<T>(o: Observable<T>): T | undefined {
   let result: T | undefined = undefined;
@@ -75,20 +75,20 @@ export class ArticleListComponent_CS {
     const o = new Subject<string>();
     store.setRequestStateError(o);
 
-    console.log(0, m.setRequestStateError[FAKE].callCount);
+    console.log(0, m.setRequestStateError[FAKE_RX_CS].callCount);
     store.setRequestStateError('error1');
-    console.log(1, m.setRequestStateError[FAKE].callCount);
+    console.log(1, m.setRequestStateError[FAKE_RX_CS].callCount);
     o.next('error2');
-    console.log(2, m.setRequestStateError[FAKE].callCount);
+    console.log(2, m.setRequestStateError[FAKE_RX_CS].callCount);
 
     const o2 = new Subject<void>();
     store.loadArticles(o2);
 
-    console.log(0, m.loadArticles[FAKE].callCount);
+    console.log(0, m.loadArticles[FAKE_RX_CS].callCount);
     store.loadArticles();
-    console.log(1, m.loadArticles[FAKE].callCount);
+    console.log(1, m.loadArticles[FAKE_RX_CS].callCount);
     o2.next();
-    console.log(2, m.loadArticles[FAKE].callCount);
+    console.log(2, m.loadArticles[FAKE_RX_CS].callCount);
 
   }
 }

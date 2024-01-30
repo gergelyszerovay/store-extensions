@@ -5,10 +5,15 @@ import { Articles } from "../models/article.model";
 import { DeepReadonly } from "ts-essentials";
 import { httpResponse200 } from "./mock-data";
 
-export type HttpRequestState = DeepReadonly<
-  'EMPTY' | 'FETCHING' | 'FETCHED' |
-  { errorMessage: string }
-  >;
+export enum HttpRequestStates {
+  EMPTY = 'EMPTY',
+  FETCHING = 'FETCHING',
+  FETCHED ='FETCHED'
+}
+
+export type HttpRequestState =
+  HttpRequestStates |
+  { readonly errorMessage: string };
 
 export function getHttpRequestStateError(httpRequestState: HttpRequestState): string | undefined {
   return (typeof(httpRequestState) === 'object' && httpRequestState?.errorMessage) || undefined;

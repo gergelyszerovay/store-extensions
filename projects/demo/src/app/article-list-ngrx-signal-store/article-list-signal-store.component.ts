@@ -1,11 +1,9 @@
-import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChange, SimpleChanges, effect, inject, input, untracked } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, effect, inject, input } from '@angular/core';
 import { ArticleListSignalStore } from './article-list-signal-store.store'
 import { UiArticleListComponent } from '../ui-components/ui-article-list.component';
 import { UiPaginationComponent } from '../ui-components/ui-pagination.component';
 import { HttpRequestStateErrorPipe } from '../services/articles.service';
 import { LogSignalStoreState } from 'ngx-mock-signal-store';
-import { patchState } from '@ngrx/signals';
 
 @Component({
   selector: 'app-article-list-ss',
@@ -16,13 +14,8 @@ import { patchState } from '@ngrx/signals';
     HttpRequestStateErrorPipe
   ],
   providers: [ArticleListSignalStore],
-/*
-Main UI states: fetching, fetched, error
-Pagination: Inputs / outputs
-Component input triggered effect
-*/
   template: `
-  <pre>{{store.httpRequestState()}}</pre>
+<h3>SignalStore</h3>
 @if (store.httpRequestState() === 'EMPTY' || store.httpRequestState() === 'FETCHING') {
   <div>Loading...</div>
 }
@@ -48,9 +41,9 @@ export class ArticleListComponent_SS {
   ) {
     LogSignalStoreState('ArticleListSignalStore', this.store);
     effect(() => {
-      console.log('effect loadArticles', this.selectedPage(), this.pageSize());
-      this.store.setSelectedPage(this.selectedPage());
-      this.store.setPageSize(this.pageSize());
+      console.log('effect loadArticles', this.store.selectedPage(), this.store.pageSize());
+      this.store.setSelectedPage(this.store.selectedPage());
+      this.store.setPageSize(this.store.pageSize());
       this.store.loadArticles();
     }, { allowSignalWrites: true });
   }

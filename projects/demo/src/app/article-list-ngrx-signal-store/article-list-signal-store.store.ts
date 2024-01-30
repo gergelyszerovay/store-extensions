@@ -3,7 +3,7 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { computed, inject } from '@angular/core';
 import { pipe, switchMap, tap } from 'rxjs';
 import { ArticleListState, initialArticleListState } from '../models/article-list.state';
-import { ArticlesService, ArticlesResponseType } from '../services/articles.service';
+import { ArticlesService, ArticlesResponseType, HttpRequestStates } from '../services/articles.service';
 import { tapResponse } from '@ngrx/component-store';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -27,11 +27,11 @@ export const ArticleListSignalStore = signalStore(
       }));
     },
     setRequestStateLoading(): void {
-      patchState(store, () => ({ httpRequestState: 'FETCHING' as const }));
+      patchState(store, () => ({ httpRequestState: HttpRequestStates.FETCHING }));
     },
     setRequestStateSuccess(params: ArticlesResponseType): void {
       patchState(store, () => ({
-        httpRequestState: 'FETCHED' as const,
+        httpRequestState: HttpRequestStates.FETCHED,
         ...params
       }));
     },

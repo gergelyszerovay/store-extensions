@@ -10,7 +10,8 @@ import { RouterLink, RouterOutlet } from '@angular/router';
   template: `
 <div>
   <a routerLink="/article-list-component-store">article-list-component-store</a> |
-  <a routerLink="/article-list-signal-store">article-list-signal-store</a>
+  <a routerLink="/article-list-signal-store">article-list-signal-store</a> |
+  <a routerLink="/article-list-signal-store-with-feature">article-list-signal-store-with-feature</a>
 </div>
 <router-outlet></router-outlet>
    `

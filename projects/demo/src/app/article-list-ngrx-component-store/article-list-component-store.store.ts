@@ -5,7 +5,7 @@ import { Observable, switchMap, tap, withLatestFrom } from "rxjs";
 import { DeepReadonly } from "ts-essentials";
 import { Articles } from "../models/article.model";
 import { ArticleListState, initialArticleListState, RouteParamsPaginatonState } from "../models/article-list.state";
-import { ArticlesResponseType, ArticlesService, HttpRequestState } from "../services/articles.service";
+import { ArticlesResponseType, ArticlesService, HttpRequestState, HttpRequestStates } from "../services/articles.service";
 
 @Injectable()
 export class ArticleListComponentStore extends ComponentStore<ArticleListState> {
@@ -67,14 +67,14 @@ export class ArticleListComponentStore extends ComponentStore<ArticleListState> 
   setRequestStateLoading = this.updater((state): ArticleListState => {
     return {
       ...state,
-      httpRequestState: 'FETCHING'
+      httpRequestState: HttpRequestStates.FETCHING
     }
   });
 
   setRequestStateSuccess = this.updater((state, params: ArticlesResponseType): ArticleListState => {
     return {
       ...state,
-      httpRequestState: 'FETCHED',
+      httpRequestState: HttpRequestStates.FETCHED,
       ...params
     }
   });
