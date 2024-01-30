@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, untracked } from '@angular/core';
 import { ArticleListSignalStore } from './article-list-signal-store.store'
 import { UiArticleListComponent } from '../ui-components/ui-article-list.component';
 import { UiPaginationComponent } from '../ui-components/ui-pagination.component';
@@ -41,10 +41,12 @@ export class ArticleListComponent_SS {
   ) {
     LogSignalStoreState('ArticleListSignalStore', this.store);
     effect(() => {
-      console.log('effect loadArticles', this.store.selectedPage(), this.store.pageSize());
-      this.store.setSelectedPage(this.store.selectedPage());
-      this.store.setPageSize(this.store.pageSize());
-      this.store.loadArticles();
+      console.log('effect input', this.selectedPage(), this.pageSize());
+      this.store.setSelectedPage(this.selectedPage());
+      this.store.setPageSize(this.pageSize());
+      untracked(() => {
+        this.store.loadArticles();
+      });
     }, { allowSignalWrites: true });
   }
 }
