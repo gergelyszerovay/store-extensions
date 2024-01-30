@@ -5,7 +5,7 @@ import { pipe, switchMap, tap, lastValueFrom, Observable, of, Subject } from 'rx
 import { tapResponse } from '@ngrx/component-store';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { FAKE, MockSignalStore, UnwrapSignalStoreProvider, asMockSignalStore, provideMockSignalStore } from './mock-signal-store';
+import { FAKE_RX_SS, MockSignalStore, UnwrapProvider, asMockSignalStore, provideMockSignalStore } from './mock-signal-store';
 
 @Injectable()
 class SampleService {
@@ -68,7 +68,7 @@ const SampleSignalStore = signalStore(
 
 describe('mockSignalStore', () => {
   describe('with default parameters', () => {
-    let store: UnwrapSignalStoreProvider<typeof SampleSignalStore>;
+    let store: UnwrapProvider<typeof SampleSignalStore>;
     let mockStore: MockSignalStore<typeof store>;
 
     beforeEach(() => {
@@ -110,19 +110,19 @@ describe('mockSignalStore', () => {
     });
 
     it('should mock the rxMethod with a FakeRxMethod (imperative)', () => {
-      expect(mockStore.rxMethod[FAKE].callCount).toBe(0);
+      expect(mockStore.rxMethod[FAKE_RX_SS].callCount).toBe(0);
       store.rxMethod(22);
-      expect(mockStore.rxMethod[FAKE].callCount).toBe(1);
-      expect(mockStore.rxMethod[FAKE].lastCall.args).toEqual([22]);
+      expect(mockStore.rxMethod[FAKE_RX_SS].callCount).toBe(1);
+      expect(mockStore.rxMethod[FAKE_RX_SS].lastCall.args).toEqual([22]);
     });
 
     it('should mock the rxMethod with a FakeRxMethod (declarative)', () => {
       const o = new Subject<number>();
       store.rxMethod(o);
-      expect(mockStore.rxMethod[FAKE].callCount).toBe(0);
+      expect(mockStore.rxMethod[FAKE_RX_SS].callCount).toBe(0);
       o.next(22)
-      expect(mockStore.rxMethod[FAKE].callCount).toBe(1);
-      expect(mockStore.rxMethod[FAKE].lastCall.args).toEqual([22]);
+      expect(mockStore.rxMethod[FAKE_RX_SS].callCount).toBe(1);
+      expect(mockStore.rxMethod[FAKE_RX_SS].lastCall.args).toEqual([22]);
     });
 
     it('can alter the DeepSignal with patchState', () => {
@@ -179,59 +179,6 @@ describe('mockSignalStore', () => {
         const store = TestBed.inject(SampleSignalStore);
         const mockStore = asMockSignalStore(store);
       }).toThrowError();
-    });
-
-    it('can mock computed signals selectively', () => {
-      TestBed.configureTestingModule({
-        providers: [
-          SampleService,
-          provideMockSignalStore(SampleSignalStore, {
-            mockComputedSignals: 'initialComputedValues',
-            initialComputedValues: {
-              doubleNumericValue: 20
-            }
-          }),
-        ],
-      });
-      const store = TestBed.inject(SampleSignalStore);
-      const mockStore = asMockSignalStore(store);
-
-      expect(store.doubleNumericValue()).toBe(20); // from the parameters
-      expect(store.tripleNumericValue()).toBe(3); // from withState
-    });
-
-    it('should throw an error, if we try to mock a non-existing computed signals selectively', () => {
-      expect(() => {
-        TestBed.configureTestingModule({
-          providers: [
-            SampleService,
-            provideMockSignalStore(SampleSignalStore, {
-              mockComputedSignals: 'initialComputedValues',
-              initialComputedValues: {
-                // @ts-ignore
-                doubleNumericValue_none_exists: 20
-              }
-            }),
-          ],
-        });
-        const store = TestBed.inject(SampleSignalStore);
-        const mockStore = asMockSignalStore(store);
-      }).toThrow(new Error('doubleNumericValue_none_exists should be a computed signal'));
-    });
-
-    it('should throw an error, if we try to mock computed signals selectively, and initialComputedValues is not set', () => {
-      expect(() => {
-        TestBed.configureTestingModule({
-          providers: [
-            SampleService,
-            provideMockSignalStore(SampleSignalStore, {
-              mockComputedSignals: 'initialComputedValues'
-            }),
-          ],
-        });
-        const store = TestBed.inject(SampleSignalStore);
-        const mockStore = asMockSignalStore(store);
-      }).toThrow(new Error('initialComputedValues should be set'));
     });
 
     it('can keep the original computed signals', () => {

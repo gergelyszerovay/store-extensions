@@ -1,14 +1,14 @@
 import { Provider, Signal, WritableSignal, isSignal, signal } from "@angular/core";
 import { ComponentStore } from "@ngrx/component-store";
 import { rxMethod } from "@ngrx/signals/rxjs-interop";
-import { BehaviorSubject, Observable, ReplaySubject, isObservable, tap } from "rxjs";
+import { BehaviorSubject, Observable, ReplaySubject, Subscription, isObservable, tap } from "rxjs";
 import sinon from "sinon";
 import { SinonSpy } from "sinon";
 
 // ReplaySubject vs BehaviorSubject
 // partial selector mocking
 
-export const FAKE = Symbol("FAKE");
+export const FAKE_RX_CS = Symbol("FAKE_RX_CS");
 
 export interface Constructor<ClassType> {
   new (...args: never[]): ClassType;
@@ -18,12 +18,12 @@ type Method<T extends readonly any[] = any[]> = (...args: T) => void;
 
 type RxMethod<Input> = ReturnType<typeof rxMethod<Input>>;
 
-type FakeRxMethod<T> = RxMethod<T> & { [FAKE]: SinonSpy<[T]> };
+type FakeRxMethod<T> = RxMethod<T> & { [FAKE_RX_CS]: SinonSpy<[T]> };
 
 function newMockRxMethod(): FakeRxMethod<unknown> {
   const fake = sinon.fake<[unknown]>();
   const r = rxMethod(tap((x) => fake(x))) as FakeRxMethod<unknown>;
-  r[FAKE] = fake;
+  r[FAKE_RX_CS] = fake;
   return r;
 }
 
@@ -56,7 +56,7 @@ type UnwrapSignal<T> = T extends Signal<infer U> ? U : never;
 type ProvideMockComponentStoreParams<T> = {
   initialState?: InitialState<T>,
   selectorInitialValues?: {
-    [K in SelectorKeys<T>]?: UnwrapSignal<T[K]>;
+    [K in SelectorKeys<T>]?: UnwrapObservable<T[K]>;
   } & {
     [K in SignalKeys<T>]?: UnwrapSignal<T[K]>;
   },
@@ -141,4 +141,16 @@ export function provideMockComponentStore<ClassType extends ComponentStore<objec
 
 export function asMockComponentStore<T>(s: T): MockComponentStore<T> {
   return s as MockComponentStore<T>;
+}
+
+export function asSinonSpy<TArgs extends readonly any[] = any[], TReturnValue = any>(fn: (...x: TArgs) => TReturnValue): SinonSpy<TArgs, TReturnValue> {
+  return fn as unknown as SinonSpy<TArgs, TReturnValue>;
+}
+
+export function asFakeRxMethod<T>(x: (observableOrValue: T | Observable<T>) => Subscription): FakeRxMethod<T> {
+  return x as unknown as FakeRxMethod<T>;
+}
+
+export function getRxMethodFake<T>(x: (observableOrValue: T | Observable<T>) => Subscription): sinon.SinonSpy<[T], any> {
+  return asFakeRxMethod(x)[FAKE_RX_CS];
 }

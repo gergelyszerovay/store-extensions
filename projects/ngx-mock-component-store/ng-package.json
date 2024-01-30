@@ -3,5 +3,6 @@
   "dest": "../../dist/ngx-mock-component-store",
   "lib": {
     "entryFile": "src/public-api.ts"
-  }
+  },
+  "allowedNonPeerDependencies": ["recursive-diff"]
 }

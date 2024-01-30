@@ -2,26 +2,24 @@ import { Provider, ProviderToken, Signal, WritableSignal, isSignal, untracked, s
 import { getState, patchState } from "@ngrx/signals";
 import { rxMethod } from "@ngrx/signals/rxjs-interop";
 import { StateSignal } from "@ngrx/signals/src/state-signal";
-import { tap } from "rxjs";
+import { Observable, Subscription, tap } from "rxjs";
 import sinon from "sinon";
 import { SinonSpy } from "sinon";
 
-export interface Constructor<ClassType> {
+interface Constructor<ClassType> {
   new (...args: never[]): ClassType;
 }
 
+export const FAKE_RX_SS = Symbol("FAKE_RX_SS");
 type RxMethod<Input> = ReturnType<typeof rxMethod<Input>>;
+type FakeRxMethod<T> = RxMethod<T> & { [FAKE_RX_SS]: SinonSpy<[T]> };
 
 type Method<T extends readonly any[] = any[]> = (...args: T) => void;
-
-export const FAKE = Symbol("FAKE");
-
-type FakeRxMethod<T> = RxMethod<T> & { [FAKE]: SinonSpy<[T]> };
 
 function newMockRxMethod(): FakeRxMethod<unknown> {
   const fake = sinon.fake<[unknown]>();
   const r = rxMethod(tap((x) => fake(x))) as FakeRxMethod<unknown>;
-  r[FAKE] = fake;
+  r[FAKE_RX_SS] = fake;
   return r;
 }
 
@@ -35,7 +33,7 @@ export type MockSignalStore<T> = {
     : T[K];
 };
 
-type InitialState<T> = T extends StateSignal<infer U> ? Partial<U> : never;
+type InitialState<T> = T extends StateSignal<infer U> ? U : never;
 
 // -? makes the key required, opposite of ?
 export type SignalKeys<T> = {
@@ -44,14 +42,12 @@ export type SignalKeys<T> = {
 
 type UnwrapSignal<T> = T extends Signal<infer U> ? U : never;
 
-export type UnwrapSignalStoreProvider<T> = T extends ProviderToken<infer U> ? U : never;
-
-type ProvideMockSignalStoreParams<T> = {
-  initialStatePatch?: InitialState<T>,
+export type ProvideMockSignalStoreParams<T> = {
+  initialStatePatch?: Partial<InitialState<T>>,
   initialComputedValues?: Omit<{
     [K in SignalKeys<T>]?: UnwrapSignal<T[K]>;
   }, keyof InitialState<T>>,
-  mockComputedSignals?: boolean | 'initialComputedValues', // true by default
+  mockComputedSignals?: boolean, // true by default
   mockMethods?: boolean, // true by default
   mockRxMethods?: boolean, // true by default
   debug?: boolean // false by default
@@ -88,31 +84,15 @@ export function provideMockSignalStore<ClassType extends StateSignal<object>>(
       }
 
       if (params?.mockComputedSignals !== false) {
-        if (params?.mockComputedSignals === 'initialComputedValues') {
-          if (typeof(params?.initialComputedValues) === 'object') {
-            Object.keys(params?.initialComputedValues).forEach((k) => {
-              if (!(combinedSignals as Array<string>).includes(k)) {
-                throw new Error(`${String(k)} should be a computed signal`);
-              }
-              // @ts-ignore
-              store[k] = signal(params?.initialComputedValues?.[k]);
-            });
+        combinedSignals.forEach((k) => {
+          if (params?.initialComputedValues && k in params?.initialComputedValues) {
+            // @ts-ignore
+            store[k] = signal(params?.initialComputedValues?.[k]);
           }
           else {
-            throw new Error('initialComputedValues should be set');
+            throw new Error(`${String(k)} should have an initial value`);
           }
-        }
-        else {
-          combinedSignals.forEach((k) => {
-            if (params?.initialComputedValues && k in params?.initialComputedValues) {
-              // @ts-ignore
-              store[k] = signal(params?.initialComputedValues?.[k]);
-            }
-            else {
-              throw new Error(`${String(k)} should have an initial value`);
-            }
-          });
-        }
+        });
       }
 
       if (params?.mockMethods !== false) {
@@ -144,6 +124,20 @@ export function provideMockSignalStore<ClassType extends StateSignal<object>>(
   };
 }
 
+export type UnwrapProvider<T> = (T) extends ProviderToken<infer U> ? U : never;
+
 export function asMockSignalStore<T>(s: T): MockSignalStore<T> {
   return s as MockSignalStore<T>;
+}
+
+export function asSinonSpy<TArgs extends readonly any[] = any[], TReturnValue = any>(fn: (...x: TArgs) => TReturnValue): SinonSpy<TArgs, TReturnValue> {
+  return fn as unknown as SinonSpy<TArgs, TReturnValue>;
+}
+
+export function asFakeRxMethod<T>(x: (observableOrValue: T | Observable<T>) => Subscription): FakeRxMethod<T> {
+  return x as unknown as FakeRxMethod<T>;
+}
+
+export function getRxMethodFake<T>(x: (observableOrValue: T | Observable<T>) => Subscription): sinon.SinonSpy<[T], any> {
+  return asFakeRxMethod(x)[FAKE_RX_SS];
 }

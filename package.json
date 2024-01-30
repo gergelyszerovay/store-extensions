@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build ngx-mock-signal-store": "ng build ngx-mock-signal-store",
     "watch": "ng build --watch --configuration development",
     "test demo": "ng test demo",
     "test ngx-mock-signal-store": "ng test ngx-mock-signal-store",
