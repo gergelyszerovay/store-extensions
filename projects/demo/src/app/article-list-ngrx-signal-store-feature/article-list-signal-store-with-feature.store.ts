@@ -33,6 +33,10 @@ export const ArticleListSignalStoreWithFeature = signalStore(
   })),
   withDataService({
     prefix: 'loadArticles',
+    getParamsFn: (store) => ({
+      limit: store.pageSize(),
+      offset: store.selectedPage() * store.pageSize()
+    }),
     service$: (params: { offset: number, limit: number }) => {
       const articlesService = inject(ArticlesService);
       return articlesService.getArticles(params)

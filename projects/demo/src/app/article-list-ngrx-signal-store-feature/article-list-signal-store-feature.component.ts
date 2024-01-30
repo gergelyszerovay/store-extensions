@@ -41,7 +41,7 @@ export class ArticleListComponent_SSF {
   ) {
     LogSignalStoreState('ArticleListSignalStoreWithFeature', this.store);
 
-  effect(() => {
+    effect(() => {
       console.log('effect input', this.selectedPage(), this.pageSize());
       this.store.setSelectedPage(this.selectedPage());
       this.store.setPageSize(this.pageSize());
@@ -52,9 +52,6 @@ export class ArticleListComponent_SSF {
   }
 
   loadArticles() {
-    this.store.loadArticles({
-      limit: this.store.pageSize(),
-      offset: this.store.selectedPage() * this.store.pageSize()
-    });
+    this.store.loadArticles();
   }
 }

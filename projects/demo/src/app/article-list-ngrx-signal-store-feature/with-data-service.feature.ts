@@ -3,6 +3,7 @@ import { Injector, Signal, computed, inject, runInInjectionContext } from "@angu
 import { tapResponse } from "@ngrx/component-store";
 import { SignalStoreFeature, patchState, signalStoreFeature, withComputed, withMethods, withState } from "@ngrx/signals";
 import { rxMethod } from "@ngrx/signals/rxjs-interop";
+import { SignalStoreSlices } from "@ngrx/signals/src/signal-store-models";
 import { StateSignal } from "@ngrx/signals/src/state-signal";
 import { Observable, pipe, switchMap, tap } from "rxjs";
 
@@ -53,9 +54,9 @@ export type WithDataServiceSignals<Prefix extends string> =
     [K in Prefix as `has${Capitalize<K>}Error`]: Signal<string | undefined>;
   };
 
-export type WithDataServiceMethods<Prefix extends string> =
+export type WithDataServiceMethods<Prefix extends string, RxParams> =
   {
-    [K in Prefix as `${K}`]: (param: any) => void;
+    [K in Prefix as `${K}`]: (param: RxParams | Observable<RxParams>) => void;
   }
 
 export function setEmpty<Prefix extends string>(
@@ -64,22 +65,29 @@ export function setEmpty<Prefix extends string>(
   return { [`${prefix}RequestState`]: HttpRequestStates.EMPTY } as WithDataServiceSlice<Prefix>;
 }
 
-export function withDataService<Prefix extends string, RxParams, Response, State extends object>(options: {
+export function withDataService<
+  Input extends {
+    state: object,
+    signals: Record<string, Signal<unknown>>,
+    methods: Record<string, (...args: any[]) => unknown>
+  },
+  Prefix extends string, ServiceParams, Response, RxParams = void>(options: {
   prefix: Prefix;
-  service$: (params: RxParams) => Observable<Response>;
+  service$: (params: ServiceParams) => Observable<Response>;
+  getParamsFn: (store: SignalStoreSlices<Input['state'] & Input['signals'] & Input['methods']>, rxParams: RxParams) => ServiceParams;
   transformResponseFn: (response: Response) => any, //Partial<State>
 }): SignalStoreFeature<
-  { state: State, signals: {}, methods: {} },
+  Input,
   {
     state: WithDataServiceSlice<Prefix>,
     signals: WithDataServiceSignals<Prefix>,
-    methods: WithDataServiceMethods<Prefix>
+    methods: WithDataServiceMethods<Prefix, RxParams>
   }
 > {
     const { requestStateKey, emptyKey, errorKey, fetchedKey, fetchingKey, fetchKey } =
   getWithDataServiceKeys(options);
 
-  const { prefix, service$, transformResponseFn } = options;
+  const { prefix, service$, transformResponseFn, getParamsFn } = options;
 
   // @ts-ignore
   return signalStoreFeature(
@@ -102,7 +110,7 @@ export function withDataService<Prefix extends string, RxParams, Response, State
           [fetchKey]: rxMethod<RxParams>(
             pipe(
               tap(() => patchState(store, setFetching(prefix))),
-              switchMap((params) => runInInjectionContext(injector, () => service$(params))),
+              switchMap((params) => runInInjectionContext(injector, () => service$(getParamsFn(store, params)))),
               tapResponse(
                 (response) => {
                   patchState(store, setFetched(prefix), transformResponseFn(response));
