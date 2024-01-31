@@ -4,7 +4,6 @@ import { tapResponse } from "@ngrx/component-store";
 import { SignalStoreFeature, patchState, signalStoreFeature, withComputed, withMethods, withState } from "@ngrx/signals";
 import { rxMethod } from "@ngrx/signals/rxjs-interop";
 import { Observable, pipe, switchMap, tap } from "rxjs";
-import { DeepReadonly } from "ts-essentials";
 
 export enum HttpRequestStates {
   EMPTY = 'EMPTY',
