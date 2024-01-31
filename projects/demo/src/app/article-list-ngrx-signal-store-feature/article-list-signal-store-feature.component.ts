@@ -24,7 +24,7 @@ import { ArticleListSignalStoreWithFeature } from './article-list-signal-store-w
   <app-ui-pagination
     [selectedPage]="store.pagination().selectedPage"
     [totalPages]="store.pagination().totalPages"
-    (onPageSelected)="store.setSelectedPage($event); loadArticles();" />
+    (onPageSelected)="store.setSelectedPage($event); store.loadArticles();" />
 }
 @if (store.hasLoadArticlesError(); as errorMessage) {
   {{ errorMessage }}
@@ -46,12 +46,8 @@ export class ArticleListComponent_SSF {
       this.store.setSelectedPage(this.selectedPage());
       this.store.setPageSize(this.pageSize());
       untracked(() => {
-        this.loadArticles();
+        this.store.loadArticles();
       });
     }, { allowSignalWrites: true });
-  }
-
-  loadArticles() {
-    this.store.loadArticles();
   }
 }

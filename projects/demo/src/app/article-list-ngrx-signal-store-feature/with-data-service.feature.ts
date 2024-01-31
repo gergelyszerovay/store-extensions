@@ -3,9 +3,8 @@ import { Injector, Signal, computed, inject, runInInjectionContext } from "@angu
 import { tapResponse } from "@ngrx/component-store";
 import { SignalStoreFeature, patchState, signalStoreFeature, withComputed, withMethods, withState } from "@ngrx/signals";
 import { rxMethod } from "@ngrx/signals/rxjs-interop";
-import { SignalStoreSlices } from "@ngrx/signals/src/signal-store-models";
-import { StateSignal } from "@ngrx/signals/src/state-signal";
 import { Observable, pipe, switchMap, tap } from "rxjs";
+import { DeepReadonly } from "ts-essentials";
 
 export enum HttpRequestStates {
   EMPTY = 'EMPTY',
@@ -66,16 +65,10 @@ export function setEmpty<Prefix extends string>(
 }
 
 export function withDataService<
-  Input extends {
-    state: object,
-    signals: Record<string, Signal<unknown>>,
-    methods: Record<string, (...args: any[]) => unknown>
-  },
-  Prefix extends string, ServiceParams, Response, RxParams = void>(options: {
+  Input extends SignalStoreFeatureResult,
+  Prefix extends string, RxParams = void>(options: {
   prefix: Prefix;
-  service$: (params: ServiceParams) => Observable<Response>;
-  getParamsFn: (store: SignalStoreSlices<Input['state'] & Input['signals'] & Input['methods']>, rxParams: RxParams) => ServiceParams;
-  transformResponseFn: (response: Response) => any, //Partial<State>
+  service$: (store: SignalStoreSlices<Input['state']> & Input['signals'] & Input['methods'], rxParams: RxParams) => Observable<Partial<Input['state']>>;
 }): SignalStoreFeature<
   Input,
   {
@@ -87,7 +80,7 @@ export function withDataService<
     const { requestStateKey, emptyKey, errorKey, fetchedKey, fetchingKey, fetchKey } =
   getWithDataServiceKeys(options);
 
-  const { prefix, service$, transformResponseFn, getParamsFn } = options;
+  const { prefix, service$ } = options;
 
   // @ts-ignore
   return signalStoreFeature(
@@ -105,15 +98,16 @@ export function withDataService<
         })
       }
     }),
-    withMethods((store: Record<string, unknown> & StateSignal<object>, injector = inject(Injector)) => {
+    withMethods((store, injector = inject(Injector)) => {
       return {
           [fetchKey]: rxMethod<RxParams>(
             pipe(
               tap(() => patchState(store, setFetching(prefix))),
-              switchMap((params) => runInInjectionContext(injector, () => service$(getParamsFn(store, params)))),
+              // @ts-ignore
+              switchMap((rxParams) => runInInjectionContext(injector, () => service$(store, rxParams))),
               tapResponse(
                 (response) => {
-                  patchState(store, setFetched(prefix), transformResponseFn(response));
+                  patchState(store, setFetched(prefix), response);
                 },
                 (errorResponse: HttpErrorResponse) => {
                   setError(prefix, 'Request error');
@@ -143,3 +137,67 @@ export function setError<Prefix extends string>(
 ): WithDataServiceSlice<Prefix> {
   return { [`${prefix}RequestState`]: { errorMessage } } as WithDataServiceSlice<Prefix>;
 }
+
+// ---
+// https://github.com/ngrx/platform/blob/main/modules/signals/src/ts-helpers.ts
+
+type Prettify<T> = { [K in keyof T]: T[K] } & {};
+
+type IsRecord<T> = T extends object
+  ? T extends unknown[]
+    ? false
+    : T extends Set<unknown>
+    ? false
+    : T extends Map<unknown, unknown>
+    ? false
+    : T extends Function
+    ? false
+    : true
+  : false;
+
+type IsUnknownRecord<T> = string extends keyof T
+  ? true
+  : number extends keyof T
+  ? true
+  : false;
+
+type IsKnownRecord<T> = IsRecord<T> extends true
+  ? IsUnknownRecord<T> extends true
+    ? false
+    : true
+  : false;
+
+// ---
+// https://github.com/ngrx/platform/blob/main/modules/signals/src/deep-signal.ts
+
+type DeepSignal<T> = Signal<T> &
+  (IsKnownRecord<T> extends true
+    ? Readonly<{
+        [K in keyof T]: IsKnownRecord<T[K]> extends true
+          ? DeepSignal<T[K]>
+          : Signal<T[K]>;
+      }>
+    : unknown);
+
+// ---
+// https://github.com/ngrx/platform/blob/main/modules/signals/src/signal-store-models.ts
+
+type SignalsDictionary = Record<string, Signal<unknown>>;
+
+type MethodsDictionary = Record<string, (...args: any[]) => unknown>;
+
+type SignalStoreFeatureResult = {
+  state: object;
+  signals: SignalsDictionary;
+  methods: MethodsDictionary;
+};
+
+type SignalStoreSlices<State> = IsKnownRecord<
+Prettify<State>
+> extends true
+? {
+    [Key in keyof State]: IsKnownRecord<State[Key]> extends true
+      ? DeepSignal<State[Key]>
+      : Signal<State[Key]>;
+  }
+: {};

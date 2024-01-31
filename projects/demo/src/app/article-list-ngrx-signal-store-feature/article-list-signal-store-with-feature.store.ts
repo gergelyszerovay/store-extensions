@@ -1,9 +1,17 @@
 import { patchState, signalStore, withComputed, withMethods, withState } from "@ngrx/signals";
 import { withDataService } from "./with-data-service.feature";
 import { computed, inject } from "@angular/core";
-import { ArticlesService } from "../services/articles.service";
+import { ArticlesResponseType, ArticlesService } from "../services/articles.service";
+import { Articles } from "../models/article.model";
 
-export const initialArticleListState = {
+type ArticleListState = {
+  readonly selectedPage: number,
+  readonly pageSize: number,
+  readonly articles: Articles,
+  readonly articlesCount: number
+}
+
+export const initialArticleListState: ArticleListState = {
   selectedPage: 0,
   pageSize: 3,
 
@@ -33,14 +41,12 @@ export const ArticleListSignalStoreWithFeature = signalStore(
   })),
   withDataService({
     prefix: 'loadArticles',
-    getParamsFn: (store) => ({
-      limit: store.pageSize(),
-      offset: store.selectedPage() * store.pageSize()
-    }),
-    service$: (params: { offset: number, limit: number }) => {
+    service$: (store) => {
       const articlesService = inject(ArticlesService);
-      return articlesService.getArticles(params)
-    },
-    transformResponseFn: (x) => x
+      return articlesService.getArticles({
+        limit: store.pageSize(),
+        offset: store.selectedPage() * store.pageSize()
+      })
+    }
   })
 );
