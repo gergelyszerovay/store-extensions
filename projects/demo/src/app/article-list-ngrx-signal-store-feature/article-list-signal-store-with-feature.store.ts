@@ -41,7 +41,7 @@ export const ArticleListSignalStoreWithFeature = signalStore(
   })),
   withDataService({
     prefix: 'loadArticles',
-    service$: (store) => {
+    service$: (store /*, rxParams: number*/) => {
       const articlesService = inject(ArticlesService);
       return articlesService.getArticles({
         limit: store.pageSize(),
