@@ -166,6 +166,72 @@
           }
         }
       }
+    },
+    "ngx-signal-store-logger": {
+      "projectType": "library",
+      "root": "projects/ngx-signal-store-logger",
+      "sourceRoot": "projects/ngx-signal-store-logger/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/ngx-signal-store-logger/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/ngx-signal-store-logger/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/ngx-signal-store-logger/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "tsConfig": "projects/ngx-signal-store-logger/tsconfig.spec.json",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ]
+          }
+        }
+      }
+    },
+    "ngx-signal-store-data-service-feature": {
+      "projectType": "library",
+      "root": "projects/ngx-signal-store-data-service-feature",
+      "sourceRoot": "projects/ngx-signal-store-data-service-feature/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/ngx-signal-store-data-service-feature/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/ngx-signal-store-data-service-feature/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/ngx-signal-store-data-service-feature/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "tsConfig": "projects/ngx-signal-store-data-service-feature/tsconfig.spec.json",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ]
+          }
+        }
+      }
     }
   }
 }

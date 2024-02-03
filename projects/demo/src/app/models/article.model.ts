@@ -6,8 +6,9 @@ export type Profile = {
 };
 
 export type Article = {
+  readonly id: number;
   readonly author: Profile;
-  readonly body: string;
+  readonly body?: string;
   readonly createdAt: string;
   readonly description: string;
   readonly favorited: boolean;
@@ -15,7 +16,7 @@ export type Article = {
   readonly slug: string;
   readonly tagList: ReadonlyArray<string>;
   readonly title: string;
-  readonly updatedAt: string;
+  readonly updatedAt?: string;
 };
 
 export type Articles = ReadonlyArray<Article>;

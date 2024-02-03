@@ -27,13 +27,13 @@ export class HttpRequestStateErrorPipe implements PipeTransform {
 }
 
 export type ArticlesResponseType = {
-  articles: Articles,
-  articlesCount: number
+  readonly articles: Articles,
+  readonly articlesCount: number
 }
 
 @Injectable({ providedIn: 'root' })
 export class ArticlesService {
-  readonly rootUrl = 'https://api.realworld.io/api';
+  readonly rootUrl = 'https://...';
 
   constructor(
     private http: HttpClient

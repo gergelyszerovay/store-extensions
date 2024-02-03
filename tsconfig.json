@@ -18,6 +18,14 @@
       "ngx-mock-signal-store": [
 /*        "./dist/ngx-mock-signal-store" */
         "./projects/ngx-mock-signal-store/src/public-api.ts"
+      ],
+      "ngx-signal-store-data-service-feature": [
+        // "./dist/ngx-signal-store-data-service-feature"
+        "./projects/ngx-signal-store-data-service-feature/src/public-api.ts"
+      ],
+      "ngx-signal-store-logger": [
+        // "./dist/ngx-signal-store-logger"
+        "./projects/ngx-signal-store-logger/src/public-api.ts"
       ]
     },
     "esModuleInterop": true,

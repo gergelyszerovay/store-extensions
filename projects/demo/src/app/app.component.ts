@@ -1,19 +1,26 @@
 import { Component } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
+import { UiArticleListComponent } from "./ui-components/ui-top-menu.component";
 
 @Component({
   standalone: true,
-  imports: [
-    RouterOutlet, RouterLink
-  ],
   selector: 'app-root',
+  imports: [
+      RouterOutlet, RouterLink,
+      UiArticleListComponent
+  ],
   template: `
-<div>
-  <a routerLink="/article-list-component-store">article-list-component-store</a> |
-  <a routerLink="/article-list-signal-store">article-list-signal-store</a> |
-  <a routerLink="/article-list-signal-store-with-feature">article-list-signal-store-with-feature</a>
+<div class="max-w-2xl mx-auto">
+  <app-ui-top-menu [items]="menuItems"/>
+  <router-outlet></router-outlet>
 </div>
-<router-outlet></router-outlet>
-   `
+  `,
+
 })
-export class AppComponent { }
+export class AppComponent {
+  menuItems = [
+    { slug: '/article-list-component-store', text: 'ComponentStore' },
+    { slug: '/article-list-signal-store', text: 'SignalStore' },
+    { slug: '/article-list-signal-store-with-feature', text: 'SignalStore with a feature' },
+  ];
+ }

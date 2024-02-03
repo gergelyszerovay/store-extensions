@@ -1,28 +1,28 @@
 import { Provider, ProviderToken, Signal, WritableSignal, isSignal, untracked, signal } from "@angular/core";
 import { getState, patchState } from "@ngrx/signals";
-import { rxMethod } from "@ngrx/signals/rxjs-interop";
 import { StateSignal } from "@ngrx/signals/src/state-signal";
-import { Observable, Subscription, tap } from "rxjs";
-import sinon from "sinon";
-import { SinonSpy } from "sinon";
+import { SinonSpy, fake } from "sinon";
+import { FakeRxMethod, RxMethod, newMockRxMethod } from "./fake-rx-method";
 
+/**
+ * Constructor type .
+*/
 interface Constructor<ClassType> {
   new (...args: never[]): ClassType;
 }
 
-export const FAKE_RX_SS = Symbol("FAKE_RX_SS");
-type RxMethod<Input> = ReturnType<typeof rxMethod<Input>>;
-type FakeRxMethod<T> = RxMethod<T> & { [FAKE_RX_SS]: SinonSpy<[T]> };
+/**
+ * Function type .
+*/
+type Method<T extends readonly any[] = any[]> = (...args: T) => unknown;
 
-type Method<T extends readonly any[] = any[]> = (...args: T) => void;
-
-function newMockRxMethod(): FakeRxMethod<unknown> {
-  const fake = sinon.fake<[unknown]>();
-  const r = rxMethod(tap((x) => fake(x))) as FakeRxMethod<unknown>;
-  r[FAKE_RX_SS] = fake;
-  return r;
-}
-
+/**
+ * Type for a mocked singalStore:
+ *
+ * - Signals are replaced by WritableSignals.
+ * - RxMethods are replaced by FakeRxMethods.
+ * - functions are replaced by Sinon mocks.
+*/
 export type MockSignalStore<T> = {
   [K in keyof T]: T[K] extends Signal<infer V>
     ? WritableSignal<V>
@@ -33,15 +33,38 @@ export type MockSignalStore<T> = {
     : T[K];
 };
 
+/**
+ * Type for the state of the singlaStore.
+ */
 type InitialState<T> = T extends StateSignal<infer U> ? U : never;
 
-// -? makes the key required, opposite of ?
-export type SignalKeys<T> = {
+/**
+ * Given a type T, determines the keys of the signal properties.
+ */
+type SignalKeys<T> = {
+  // -? makes the key required, opposite of ?
   [K in keyof T]-?: T[K] extends Signal<unknown> ? K : never;
 }[keyof T];
 
+/**
+ * Type to extract the wrapped type from a Signal type.
+ *
+ * @template T - The original Signal type.
+ * @returns The unwrapped type if T is a Signal, otherwise, 'never'.
+ */
 type UnwrapSignal<T> = T extends Signal<infer U> ? U : never;
 
+/**
+ * Parameters for providing a mock signal store.
+ *
+ * @template T The type of the original signal store.
+ * @param initialStatePatch A partial initial state to override the original initial state.
+ * @param initialComputedValues Initial values for computed signals.
+ * @param mockComputedSignals Flag to mock computed signals (default is true).
+ * @param mockMethods Flag to mock methods (default is true).
+ * @param mockRxMethods Flag to mock RxMethods (default is true).
+ * @param debug Flag to enable debug mode (default is false).
+ */
 export type ProvideMockSignalStoreParams<T> = {
   initialStatePatch?: Partial<InitialState<T>>,
   initialComputedValues?: Omit<{
@@ -52,6 +75,62 @@ export type ProvideMockSignalStoreParams<T> = {
   mockRxMethods?: boolean, // true by default
   debug?: boolean // false by default
 }
+
+/**
+ * Provides a mock version of signal store.
+ *
+ * @template ClassType The class type that extends StateSignal<object>.
+ * @param classConstructor The constructor function for the class.
+ * @param params Optional parameters for providing the mock signal store.
+ * @returns The provider for the mock signal store.
+ *
+ * Usage:
+ *
+ * ```typescript
+ * // component:
+ *
+ * export const ArticleListSignalStore = signalStore(...);
+ *
+ * @Component(...)
+ * export class ArticleListComponent_SS {
+ *   readonly store = inject(ArticleListSignalStore);
+ *   // ...
+ * }
+ *
+ * // test:
+ *
+ * let store: UnwrapProvider<typeof ArticleListSignalStore>;
+ * let mockStore: MockSignalStore<typeof store>;
+ *
+ * await TestBed.configureTestingModule({
+ *   imports: [
+ *     ArticleListComponent_SS,
+ *     MockComponent(UiArticleListComponent)
+ *   ]
+ * })
+ * .overrideComponent(
+ *   ArticleListComponent_SS,
+ *   {
+ *     set: {
+ *       providers: [
+ *         MockProvider(ArticlesService), // injected in ArticleListSignalStore
+ *         provideMockSignalStore(ArticleListSignalStore, {
+ *           initialComputedValues: {
+ *             totalPages: 0,
+ *             pagination: { selectedPage: 0, totalPages: 0 }
+ *           }
+ *         })
+ *       ]
+ *     }
+ *   }
+ * )
+ * .compileComponents();
+ *
+ * store = component.store;
+ * mockStore = asMockSignalStore(store);
+ *
+ * ```
+ */
 
 export function provideMockSignalStore<ClassType extends StateSignal<object>>(
   classConstructor: Constructor<ClassType>,
@@ -98,14 +177,14 @@ export function provideMockSignalStore<ClassType extends StateSignal<object>>(
       if (params?.mockMethods !== false) {
         methods.forEach(k => {
           // @ts-ignore
-          store[k] = sinon.fake();
+          store[k] = fake();
         });
       }
 
       if (params?.mockRxMethods !== false) {
         rxMethods.forEach(k => {
           // @ts-ignore
-          store[k] = newMockRxMethod();
+          store[k] = newMockRxMethod<unknown>();
         });
       }
 
@@ -124,20 +203,18 @@ export function provideMockSignalStore<ClassType extends StateSignal<object>>(
   };
 }
 
+/**
+ * Type to extract the type of a signal store.
+ *
+ * The signalStore() function returns a provider for the generated signal store.
+ */
 export type UnwrapProvider<T> = (T) extends ProviderToken<infer U> ? U : never;
 
 export function asMockSignalStore<T>(s: T): MockSignalStore<T> {
   return s as MockSignalStore<T>;
 }
 
-export function asSinonSpy<TArgs extends readonly any[] = any[], TReturnValue = any>(fn: (...x: TArgs) => TReturnValue): SinonSpy<TArgs, TReturnValue> {
+export function asSinonSpy<TArgs extends readonly any[] = any[], TReturnValue = any>(
+  fn: (...x: TArgs) => TReturnValue): SinonSpy<TArgs, TReturnValue> {
   return fn as unknown as SinonSpy<TArgs, TReturnValue>;
-}
-
-export function asFakeRxMethod<T>(x: (observableOrValue: T | Observable<T>) => Subscription): FakeRxMethod<T> {
-  return x as unknown as FakeRxMethod<T>;
-}
-
-export function getRxMethodFake<T>(x: (observableOrValue: T | Observable<T>) => Subscription): sinon.SinonSpy<[T], any> {
-  return asFakeRxMethod(x)[FAKE_RX_SS];
 }

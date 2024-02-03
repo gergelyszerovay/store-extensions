@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, effect, inject, input, untracked } from '@angular/core';
 import { UiArticleListComponent } from '../ui-components/ui-article-list.component';
 import { UiPaginationComponent } from '../ui-components/ui-pagination.component';
-import { HttpRequestStateErrorPipe } from '../services/articles.service';
-import { LogSignalStoreState } from 'ngx-mock-signal-store';
+// import { HttpRequestStateErrorPipe } from '../services/articles.service';
+import { LogSignalStoreState } from 'ngx-signal-store-logger';
 import { ArticleListSignalStoreWithFeature } from './article-list-signal-store-with-feature.store';
 
 @Component({
@@ -11,23 +11,23 @@ import { ArticleListSignalStoreWithFeature } from './article-list-signal-store-w
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     UiArticleListComponent, UiPaginationComponent,
-    HttpRequestStateErrorPipe
+    // HttpRequestStateErrorPipe
   ],
   providers: [ArticleListSignalStoreWithFeature],
   template: `
-<h3>SignalStore with a feature</h3>
+<h1 class="text-xl font-semibold my-4">SignalStore with a feature</h1>
 @if (store.isLoadArticlesEmpty() || store.isLoadArticlesFetching()) {
   <div>Loading...</div>
 }
 @if (store.isLoadArticlesFetched()) {
-  <app-ui-article-list [articles]="store.articles()"/>
+  <app-ui-article-list [articles]="store.articleEntities()"/>
   <app-ui-pagination
     [selectedPage]="store.pagination().selectedPage"
     [totalPages]="store.pagination().totalPages"
     (onPageSelected)="store.setSelectedPage($event); store.loadArticles();" />
 }
-@if (store.hasLoadArticlesError(); as errorMessage) {
-  {{ errorMessage }}
+@if (store.getLoadArticlesError(); as error) {
+  {{ error.errorMessage }}
 }
   `
 })
@@ -42,10 +42,12 @@ export class ArticleListComponent_SSF {
     LogSignalStoreState('ArticleListSignalStoreWithFeature', this.store);
 
     effect(() => {
-      console.log('effect input', this.selectedPage(), this.pageSize());
-      this.store.setSelectedPage(this.selectedPage());
-      this.store.setPageSize(this.pageSize());
+      const selectedPage = this.selectedPage();
+      const pageSize = this.pageSize();
       untracked(() => {
+        console.log('effect input', selectedPage, pageSize);
+        this.store.setSelectedPage(selectedPage);
+        this.store.setPageSize(pageSize);
         this.store.loadArticles();
       });
     }, { allowSignalWrites: true });

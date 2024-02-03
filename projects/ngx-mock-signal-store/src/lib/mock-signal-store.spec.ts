@@ -5,7 +5,8 @@ import { pipe, switchMap, tap, lastValueFrom, Observable, of, Subject } from 'rx
 import { tapResponse } from '@ngrx/component-store';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { FAKE_RX_SS, MockSignalStore, UnwrapProvider, asMockSignalStore, provideMockSignalStore } from './mock-signal-store';
+import { MockSignalStore, UnwrapProvider, asMockSignalStore, provideMockSignalStore } from './mock-signal-store';
+import { getRxMethodFake } from './fake-rx-method';
 
 @Injectable()
 class SampleService {
@@ -110,19 +111,19 @@ describe('mockSignalStore', () => {
     });
 
     it('should mock the rxMethod with a FakeRxMethod (imperative)', () => {
-      expect(mockStore.rxMethod[FAKE_RX_SS].callCount).toBe(0);
+      expect(getRxMethodFake(store.rxMethod).callCount).toBe(0);
       store.rxMethod(22);
-      expect(mockStore.rxMethod[FAKE_RX_SS].callCount).toBe(1);
-      expect(mockStore.rxMethod[FAKE_RX_SS].lastCall.args).toEqual([22]);
+      expect(getRxMethodFake(store.rxMethod).callCount).toBe(1);
+      expect(getRxMethodFake(store.rxMethod).lastCall.args).toEqual([22]);
     });
 
     it('should mock the rxMethod with a FakeRxMethod (declarative)', () => {
       const o = new Subject<number>();
       store.rxMethod(o);
-      expect(mockStore.rxMethod[FAKE_RX_SS].callCount).toBe(0);
+      expect(getRxMethodFake(store.rxMethod).callCount).toBe(0);
       o.next(22)
-      expect(mockStore.rxMethod[FAKE_RX_SS].callCount).toBe(1);
-      expect(mockStore.rxMethod[FAKE_RX_SS].lastCall.args).toEqual([22]);
+      expect(getRxMethodFake(store.rxMethod).callCount).toBe(1);
+      expect(getRxMethodFake(store.rxMethod).lastCall.args).toEqual([22]);
     });
 
     it('can alter the DeepSignal with patchState', () => {
@@ -239,7 +240,6 @@ describe('mockSignalStore', () => {
         ],
       });
       const store = TestBed.inject(SampleSignalStore);
-      const mockStore = asMockSignalStore(store);
 
       expect(getState(store)).toEqual({
         ...initialState,

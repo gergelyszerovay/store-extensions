@@ -4,6 +4,7 @@ import { MockProvider } from 'ng-mocks';
 import { provideRouter } from '@angular/router';
 import { ArticleListComponent_CS } from './article-list-component-store.component';
 import { ArticleListComponentStore } from './article-list-component-store.store';
+import { provideMockComponentStore } from 'ngx-mock-component-store';
 
 describe('ArticleListComponent_CS', () => {
   let component: ArticleListComponent_CS;
@@ -14,8 +15,9 @@ describe('ArticleListComponent_CS', () => {
     await TestBed.configureTestingModule({
       imports: [ArticleListComponent_CS],
       providers: [
-        MockProvider(ArticlesService),
+        // MockProvider(ArticlesService),
         provideRouter([]),
+        // provideMockComponentStore(ArticleListComponentStore)
         // provideMockSignalStore(ArticleListSignalStore, {
         //   initialState: {
         //     selectedPage: 1
@@ -26,19 +28,28 @@ describe('ArticleListComponent_CS', () => {
         // })
       ]
     })
+    .overrideComponent(
+      ArticleListComponent_CS,
+      {
+        set: {
+          providers: [
+            MockProvider(ArticlesService), // injected in ArticleListComponentStore
+            provideMockComponentStore(ArticleListComponentStore)
+          ]
+        }
+      }
+    )
     .compileComponents();
 
     fixture = TestBed.createComponent(ArticleListComponent_CS);
     component = fixture.componentInstance;
-    store = TestBed.inject(ArticleListComponentStore);
+    // access to a service provided on the component level
+    store = fixture.debugElement.injector.get(ArticleListComponentStore);
     fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
-
-    console.log(store)
-
   });
 
 });

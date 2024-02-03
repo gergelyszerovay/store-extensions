@@ -1,12 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ArticleListComponent_SS } from './article-list-signal-store.component';
 import { ArticleListSignalStore } from './article-list-signal-store.store';
-import { FAKE_RX_SS, MockSignalStore, UnwrapProvider, asMockSignalStore, provideMockSignalStore } from 'ngx-mock-signal-store';
-import { ArticlesService } from '../services/articles.service';
+import { MockSignalStore, UnwrapProvider, asMockSignalStore, getRxMethodFake, provideMockSignalStore } from 'ngx-mock-signal-store';
+import { ArticlesService, HttpRequestStates } from '../services/articles.service';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { patchState } from '@ngrx/signals';
 import { screen } from '@testing-library/angular';
-import { ApplicationRef, InputSignal, signal } from '@angular/core';
 import { UiArticleListComponent } from '../ui-components/ui-article-list.component';
 import { Article, Articles } from '../models/article.model';
 import { By } from '@angular/platform-browser';
@@ -52,8 +51,8 @@ describe('ArticleListComponent_SS', () => {
 
     fixture = TestBed.createComponent(ArticleListComponent_SS);
     component = fixture.componentInstance;
-    // TODO: not works
-    // store = TestBed.inject(ArticleListSignalStore);
+    // access to a service provided on the component level
+    store = fixture.debugElement.injector.get(ArticleListSignalStore);
     store = component.store;
     mockStore = asMockSignalStore(store);
     fixture.detectChanges();
@@ -65,7 +64,7 @@ describe('ArticleListComponent_SS', () => {
 
   describe('Main UI states', () => {
     it('should render the loading message if the request state is FETCHING', () => {
-      patchState(store, () => ({ httpRequestState: 'FETCHING' as const }))
+      patchState(store, () => ({ httpRequestState: HttpRequestStates.FETCHING }))
       fixture.detectChanges();
       expect(screen.queryByText(/loading/i)).toBeDefined();
       expect(screen.queryByText(/error1/i)).toBeNull();
@@ -80,7 +79,7 @@ describe('ArticleListComponent_SS', () => {
 
     it('should render the articles if the request state is FETCHED', () => {
       patchState(store, () => ({
-        httpRequestState: 'FETCHED' as const,
+        httpRequestState: HttpRequestStates.FETCHED,
         articles: [
           { slug: 'slug 1', } as Article
         ]
@@ -97,30 +96,29 @@ describe('ArticleListComponent_SS', () => {
   describe('Effect: router inputs => store', () => {
     it('should update the store\'s state initially', () => {
       console.log(mockStore);
-      expect(mockStore.loadArticles[FAKE_RX_SS].callCount).toBe(1);
+      expect(getRxMethodFake(mockStore.loadArticles).callCount).toBe(1);
     });
 
     it('should call loadArticles if the selectedPage router input changes', () => {
-      mockStore.loadArticles[FAKE_RX_SS].resetHistory();
+      getRxMethodFake(mockStore.loadArticles).resetHistory();
       fixture.componentRef.setInput('selectedPage', '22');
       fixture.detectChanges();
-      expect(mockStore.loadArticles[FAKE_RX_SS].callCount).toBe(1);
+      expect(getRxMethodFake(mockStore.loadArticles).callCount).toBe(1);
     });
 
     it('should call loadArticles if the pageSize router input changes', () => {
-      mockStore.loadArticles[FAKE_RX_SS].resetHistory();
+      getRxMethodFake(mockStore.loadArticles).resetHistory();
       fixture.componentRef.setInput('pageSize', '11');
       fixture.detectChanges();
-      expect(mockStore.loadArticles[FAKE_RX_SS].callCount).toBe(1);
+      expect(getRxMethodFake(mockStore.loadArticles).callCount).toBe(1);
     });
 
     it('should call loadArticles only once, even if the both the selectedPage ans pageSize router inputs change', () => {
-      mockStore.loadArticles[FAKE_RX_SS].resetHistory();
+      getRxMethodFake(mockStore.loadArticles).resetHistory();
       fixture.componentRef.setInput('selectedPage', '22');
       fixture.componentRef.setInput('pageSize', '11');
       fixture.detectChanges();
-      expect(mockStore.loadArticles[FAKE_RX_SS].callCount).toBe(1);
+      expect(getRxMethodFake(mockStore.loadArticles).callCount).toBe(1);
     });
-
   });
 });

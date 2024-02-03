@@ -1,26 +1,26 @@
-import { patchState, signalStore, withComputed, withMethods, withState } from "@ngrx/signals";
-import { withDataService } from "./with-data-service.feature";
+import { patchState, signalStore, type, withComputed, withMethods, withState } from "@ngrx/signals";
+import { withDataService } from "ngx-signal-store-data-service-feature";
 import { computed, inject } from "@angular/core";
-import { ArticlesResponseType, ArticlesService } from "../services/articles.service";
-import { Articles } from "../models/article.model";
+import { setAllEntities, withEntities } from '@ngrx/signals/entities';
+import { ArticlesService } from "../services/articles.service";
+import { Article } from "../models/article.model";
+import { map } from "rxjs/operators";
 
 type ArticleListState = {
   readonly selectedPage: number,
   readonly pageSize: number,
-  readonly articles: Articles,
   readonly articlesCount: number
 }
 
 export const initialArticleListState: ArticleListState = {
   selectedPage: 0,
   pageSize: 3,
-
-  articles: [],
   articlesCount: 0
 }
 
 export const ArticleListSignalStoreWithFeature = signalStore(
   withState(initialArticleListState),
+  withEntities({ entity: type<Article>(), collection: 'article' }),
   withComputed(({ articlesCount, pageSize }) => ({
     totalPages: computed(() => Math.ceil(articlesCount() / pageSize())),
   })),
@@ -35,18 +35,26 @@ export const ArticleListSignalStoreWithFeature = signalStore(
     },
     setPageSize(pageSize: string | number | undefined): void {
       patchState(store, () => ({
-        pageSize: pageSize === undefined ? initialArticleListState.pageSize : Number(pageSize),
+        pageSize: pageSize === undefined ? initialArticleListState.pageSize : Number(pageSize)
       }));
     },
   })),
   withDataService({
-    prefix: 'loadArticles',
-    service$: (store /*, rxParams: number*/) => {
+    actionName: 'loadArticles',
+    service$: (store /*, rxParams: void*/) => {
       const articlesService = inject(ArticlesService);
       return articlesService.getArticles({
         limit: store.pageSize(),
         offset: store.selectedPage() * store.pageSize()
       })
+      .pipe(map(response => {
+        return [
+          // setAllEntities doesn't work with readonly arrays, ReadonlyArray<Article> => Array<Article>
+          setAllEntities(response.articles as Array<Article>, { collection: 'article' }),
+          {
+            articlesCount: response.articlesCount
+          }
+      ] }))
     }
   })
 );

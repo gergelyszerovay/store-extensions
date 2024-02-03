@@ -27,6 +27,7 @@ function readFirstSync<T>(o: Observable<T>): T | undefined {
     ArticleListComponentStore
   ],
   template: `
+<h1 class="text-xl font-semibold my-4">ComponentStore</h1>
 <ng-container *ngIf="(store.httpRequestState$ | async) === 'FETCHING'">
   Loading...
 </ng-container>

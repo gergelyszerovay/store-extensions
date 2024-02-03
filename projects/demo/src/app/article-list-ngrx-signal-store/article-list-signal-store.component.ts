@@ -3,7 +3,7 @@ import { ArticleListSignalStore } from './article-list-signal-store.store'
 import { UiArticleListComponent } from '../ui-components/ui-article-list.component';
 import { UiPaginationComponent } from '../ui-components/ui-pagination.component';
 import { HttpRequestStateErrorPipe } from '../services/articles.service';
-import { LogSignalStoreState } from 'ngx-mock-signal-store';
+import { LogSignalStoreState } from 'ngx-signal-store-logger';
 
 @Component({
   selector: 'app-article-list-ss',
@@ -15,7 +15,7 @@ import { LogSignalStoreState } from 'ngx-mock-signal-store';
   ],
   providers: [ArticleListSignalStore],
   template: `
-<h3>SignalStore</h3>
+<h1 class="text-xl font-semibold my-4">SignalStore</h1>
 @if (store.httpRequestState() === 'EMPTY' || store.httpRequestState() === 'FETCHING') {
   <div>Loading...</div>
 }
