@@ -2,17 +2,17 @@ import { Provider, ProviderToken, Signal, WritableSignal, isSignal, untracked, s
 import { getState, patchState } from "@ngrx/signals";
 import { StateSignal } from "@ngrx/signals/src/state-signal";
 import { SinonSpy, fake } from "sinon";
-import { FakeRxMethod, RxMethod, newMockRxMethod } from "./fake-rx-method";
+import { FakeRxMethod, RxMethod, newMockRxMethod } from "@gergelyszerovay/fake-rx-method";
 
 /**
- * Constructor type .
+ * Constructor type.
 */
 interface Constructor<ClassType> {
   new (...args: never[]): ClassType;
 }
 
 /**
- * Function type .
+ * Function type.
 */
 type Method<T extends readonly any[] = any[]> = (...args: T) => unknown;
 

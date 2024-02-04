@@ -38,7 +38,6 @@ import { radixChevronLeft, radixChevronRight } from '@ng-icons/radix-icons';
           <button
             class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium  disabled:pointer-events-none disabled:opacity-50 hover:bg-yellow-500 h-10 px-4 py-2 gap-1 pr-2.5"
             aria-label="Go to next page"
-            href="#"
             [disabled]="selectedPage() === totalPages() - 1"
             ><span>Next</span
             ><ng-icon name="radixChevronRight"/></button>
@@ -54,7 +53,6 @@ export class UiPaginationComponent implements OnChanges {
   @Output() onPageSelected: EventEmitter<number> = new EventEmitter();
 
   pages = computed(() => {
-    console.log(this.selectedPage(), this.totalPages())
     return calculatePaginatorPages(this.totalPages() - 1, this.selectedPage(), this.maxItems());
   });
 

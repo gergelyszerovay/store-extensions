@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Output, input } from '@angular/core';
 import { UiArticleLisItemComponent } from './ui-article-list-item.component';
 import { Articles } from '../models/article.model';
 
@@ -10,11 +10,15 @@ import { Articles } from '../models/article.model';
     UiArticleLisItemComponent
   ],
   template: `
-@for (article of articles(); track article.slug) {
-  <app-ui-article-list-item [article]="article"/>
+@for (article of articles(); track article.id) {
+  <app-ui-article-list-item
+    [article]="article"
+    (toggleFavorite)="toggleFavorite.emit($event)"
+  />
 }
   `
 })
 export class UiArticleListComponent {
   articles = input.required<Articles>();
+  @Output() toggleFavorite = new EventEmitter<number>();
 }

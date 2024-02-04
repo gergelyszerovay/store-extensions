@@ -1,9 +1,9 @@
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { Injectable, Pipe, PipeTransform } from "@angular/core";
 import { Observable, delay, of, take, throwError } from "rxjs";
-import { Articles } from "../models/article.model";
-import { DeepReadonly } from "ts-essentials";
+import { Article, Articles } from "../models/article.model";
 import { httpResponse200 } from "./mock-data";
+import { Writable } from "ts-essentials";
 
 export enum HttpRequestStates {
   EMPTY = 'EMPTY',
@@ -33,15 +33,13 @@ export type ArticlesResponseType = {
 
 @Injectable({ providedIn: 'root' })
 export class ArticlesService {
-  readonly rootUrl = 'https://...';
-
   constructor(
     private http: HttpClient
   ) { }
 
   getArticles(params: { offset: number, limit: number }): Observable<ArticlesResponseType> {
     // real API request
-    // return this.http.get<ArticlesResponseType>(`${this.rootUrl}/articles?offset=${params.offset}&limit=${params.limit}`);
+    // return this.http.get<ArticlesResponseType>(`${url}/articles?offset=${params.offset}&limit=${params.limit}`);
 
     // mock API request
     return of({
@@ -54,5 +52,21 @@ export class ArticlesService {
 
     // mock API request with error response
     // return throwError(() => new HttpErrorResponse({ error: 500 }));
+  }
+
+  toggleFavorite(id: number): Observable<Article> {
+    const article = httpResponse200.articles.find(a => a.id === id)! as Writable<Article>;
+    if (article.favorited) {
+      article.favorited = false;
+      article.favoritesCount --;
+    }
+    else {
+      article.favorited = true;
+      article.favoritesCount ++;
+    }
+    return of({ ...article }).pipe(
+      take(1),
+      delay(1000)
+    );
   }
 }

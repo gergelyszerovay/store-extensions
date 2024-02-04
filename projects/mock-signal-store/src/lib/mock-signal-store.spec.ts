@@ -6,7 +6,7 @@ import { tapResponse } from '@ngrx/component-store';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { MockSignalStore, UnwrapProvider, asMockSignalStore, provideMockSignalStore } from './mock-signal-store';
-import { getRxMethodFake } from './fake-rx-method';
+import { getRxMethodFake } from '../../../fake-rx-method/src/lib/fake-rx-method';
 
 @Injectable()
 class SampleService {

@@ -1,5 +1,5 @@
 {
-  "name": "ngx-signal-store-logger",
+  "name": "@gergelyszerovay/signal-store-logger",
   "version": "0.0.1",
   "peerDependencies": {
     "@angular/common": "^17.1.0",

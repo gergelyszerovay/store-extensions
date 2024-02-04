@@ -2,14 +2,14 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Output, input } from 
 import { CommonModule } from '@angular/common';
 import { Article } from '../models/article.model';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
-import { radixHeart } from '@ng-icons/radix-icons';
+import { radixHeart, radixHeartFilled } from '@ng-icons/radix-icons';
 
 @Component({
   selector: 'app-ui-article-list-item',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgIconComponent, CommonModule],
-  viewProviders: [provideIcons({ radixHeart })],
+  viewProviders: [provideIcons({ radixHeart, radixHeartFilled })],
   template: `
 @if (article(); as a) {
   <div class="bg-white shadow-sm border rounded-md p-6 mb-6">
@@ -26,10 +26,11 @@ import { radixHeart } from '@ng-icons/radix-icons';
     </div>
 
     <!-- Like Count with Heart Icon -->
-    <div class="text-sm text-gray-500 flex items-center">
-      <ng-icon name="radixHeart" style="padding-top: 1px;"/>
+    <button href="#" class="text-sm text-gray-500 flex items-center"
+      (click)="toggleFavorite.emit(a.id)">
+      <ng-icon [name]="a.favorited ? 'radixHeartFilled' : 'radixHeart'" style="padding-top: 1px;"/>
       <span class="pl-1">{{ a.favoritesCount }}</span>
-    </div>
+    </button>
   </div>
 
   <!-- Article Title -->
@@ -53,15 +54,5 @@ import { radixHeart } from '@ng-icons/radix-icons';
 })
 export class UiArticleLisItemComponent {
   article = input.required<Article>();
-  @Output() openArticle: EventEmitter<string> = new EventEmitter();
-  @Output() favorite: EventEmitter<string> = new EventEmitter();
-  @Output() unFavorite: EventEmitter<string> = new EventEmitter();
-
-  toggleFavorite(article: Article) {
-    if (article.favorited) {
-      this.unFavorite.emit(article.slug);
-    } else {
-      this.favorite.emit(article.slug);
-    }
-  }
+  @Output() toggleFavorite = new EventEmitter<number>();
 }

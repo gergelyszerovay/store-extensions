@@ -3,7 +3,7 @@ import { ArticleListSignalStore } from './article-list-signal-store.store'
 import { UiArticleListComponent } from '../ui-components/ui-article-list.component';
 import { UiPaginationComponent } from '../ui-components/ui-pagination.component';
 import { HttpRequestStateErrorPipe } from '../services/articles.service';
-import { LogSignalStoreState } from 'ngx-signal-store-logger';
+import { LogSignalStoreState } from '@gergelyszerovay/signal-store-logger';
 
 @Component({
   selector: 'app-article-list-ss',
@@ -32,6 +32,7 @@ import { LogSignalStoreState } from 'ngx-signal-store-logger';
   `
 })
 export class ArticleListComponent_SS {
+  // we get these from the router, as we use withComponentInputBinding()
   selectedPage = input<string | undefined>(undefined);
   pageSize = input<string | undefined>(undefined);
 
@@ -41,12 +42,16 @@ export class ArticleListComponent_SS {
   ) {
     LogSignalStoreState('ArticleListSignalStore', this.store);
     effect(() => {
-      console.log('effect input', this.selectedPage(), this.pageSize());
-      this.store.setSelectedPage(this.selectedPage());
-      this.store.setPageSize(this.pageSize());
+      // the effect track these signals
+      const selectedPage = this.selectedPage();
+      const pageSize = this.pageSize();
+      // we don't want to track anything from this line
+      console.log('router input ➡️ store (effect)', selectedPage, pageSize);
       untracked(() => {
+        this.store.setSelectedPage(selectedPage);
+        this.store.setPageSize(pageSize);
         this.store.loadArticles();
       });
-    }, { allowSignalWrites: true });
+    });
   }
 }

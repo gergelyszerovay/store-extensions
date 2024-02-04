@@ -8,8 +8,3 @@ export {
   UnwrapProvider,
   asMockSignalStore, asSinonSpy
 } from './lib/mock-signal-store';
-
-export {
-  RxMethod, FakeRxMethod, FAKE_RX_SS,
-  newMockRxMethod,
-  asFakeRxMethod, getRxMethodFake } from './lib/fake-rx-method';

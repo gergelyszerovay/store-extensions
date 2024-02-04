@@ -5,20 +5,49 @@ import { PartialStateUpdater, SignalStoreFeature, patchState, signalStoreFeature
 import { rxMethod } from "@ngrx/signals/rxjs-interop";
 import { Observable, pipe, switchMap, tap } from "rxjs";
 import { DeepReadonly } from "ts-essentials";
-import { RxMethod, SignalStoreFeatureResult, SignalStoreSlices } from "./ngrx-signals.model";
+
+// import { RxMethod, SignalStoreFeatureResult, SignalStoreSlices } from "./ngrx-signals.model";
+import { StateSignal } from "@ngrx/signals/src/state-signal";
+import { RxMethod } from "@gergelyszerovay/fake-rx-method";
+import { SignalStoreFeatureResult, SignalStoreSlices } from "@ngrx/signals/src/signal-store-models";
 
 export enum HttpRequestStates {
+  /**
+   * State when no request has been made.
+   */
   EMPTY = 'EMPTY',
+  /**
+   * State when a request is started, and we're waiting for the server's response.
+   */
   FETCHING = 'FETCHING',
+  /**
+   * State when a request has been successfully fetched.
+   */
   FETCHED ='FETCHED'
 }
 
+/**
+ * Represents an HTTP request error.
+ */
 export type HttpRequestError = {
+  /**
+   * A message describing the error.
+   */
   readonly errorMessage: string,
+  /**
+   * An optional error code.
+   */
   readonly errorCode?: number
+  /**
+   * Optional custom error related data
+   */
   readonly errorData?: unknown;
 }
 
+/**
+ * Represents the state of an HTTP request, which can be one of the defined states
+ * in the HttpRequestStates enum, or an HttpRequestError error object if the request fails.
+ */
 export type HttpRequestState = HttpRequestStates | HttpRequestError;
 
 // ---
@@ -59,21 +88,23 @@ type WithDataServiceMethods<ActionName extends string, RxParams> =
     [K in ActionName as `${K}`]: RxMethod<RxParams>;
   }
 
-function setEmpty<ActionName extends string>(
-  actionName: ActionName
-): WithDataServiceSlice<ActionName> {
-  return { [`${actionName}RequestState`]: HttpRequestStates.EMPTY } as WithDataServiceSlice<ActionName>;
-}
+// function setEmpty<ActionName extends string>(
+//   actionName: ActionName
+// ): WithDataServiceSlice<ActionName> {
+//   return { [`${actionName}RequestState`]: HttpRequestStates.EMPTY } as WithDataServiceSlice<ActionName>;
+// }
 
 export function withDataService<
   Input extends SignalStoreFeatureResult,
   ActionName extends string, RxParams = void>(options: {
-  actionName: ActionName;
-  service$: (store: SignalStoreSlices<Input['state']> & Input['signals'] & Input['methods'], rxParams: RxParams) => Observable<Array<
-    Partial<Input['state'] & {}> |
-    PartialStateUpdater<Input['state']>
-  >>,
-  extractHttpErrorMessageFn?: (error: DeepReadonly<HttpErrorResponse>) => HttpRequestError
+    actionName: ActionName;
+    service$: (
+      store: SignalStoreSlices<Input['state']> & Input['signals'] & Input['methods'] & StateSignal<{}>, rxParams: RxParams) =>
+        Observable<Array<
+        Partial<Input['state'] & {}> |
+        PartialStateUpdater<Input['state']>
+      >>,
+    extractHttpErrorMessageFn?: (error: DeepReadonly<HttpErrorResponse>) => HttpRequestError
 }): SignalStoreFeature<
   Input,
   {
@@ -84,7 +115,6 @@ export function withDataService<
 > {
     const { requestStateKey, emptyKey, errorKey, fetchedKey, fetchingKey, fetchKey } =
   getWithDataServiceKeys(options);
-
 
   const { actionName, service$ } = options;
   const extractHttpErrorMessageFn = options.extractHttpErrorMessageFn ?? extractHttpErrorMessage;
@@ -154,7 +184,6 @@ function setError<ActionName extends string>(
 export function extractHttpErrorMessage(
   error: DeepReadonly<HttpErrorResponse>
 ): HttpRequestError {
-  console.log(error)
   // If the error has a user-friendly message, return it
   if (error.error?.message) {
     return { errorMessage: error.error.message, errorCode: 1 };

@@ -1,6 +1,6 @@
 {
   "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
-  "dest": "../../dist/ngx-signal-store-data-service-feature",
+  "dest": "../../dist/signal-store-logger",
   "lib": {
     "entryFile": "src/public-api.ts"
   }

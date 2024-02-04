@@ -1,5 +1,5 @@
 {
-  "name": "ngx-mock-signal-store",
+  "name": "@gergelyszerovay/mock-signal-store",
   "version": "0.0.1",
   "description": "Angular testing libraries for mocking NgRx SignalStore",
   "repository": {

@@ -1,10 +1,12 @@
 import { patchState, signalStore, type, withComputed, withMethods, withState } from "@ngrx/signals";
-import { withDataService } from "ngx-signal-store-data-service-feature";
+import { withDataService } from "@gergelyszerovay/signal-store-data-service-feature";
 import { computed, inject } from "@angular/core";
-import { setAllEntities, withEntities } from '@ngrx/signals/entities';
+import { setAllEntities, setEntity, withEntities } from '@ngrx/signals/entities';
 import { ArticlesService } from "../services/articles.service";
 import { Article } from "../models/article.model";
-import { map } from "rxjs/operators";
+import { map, switchMap, tap } from "rxjs/operators";
+import { pipe } from "rxjs";
+import { rxMethod } from "@ngrx/signals/rxjs-interop";
 
 type ArticleListState = {
   readonly selectedPage: number,
@@ -53,8 +55,36 @@ export const ArticleListSignalStoreWithFeature = signalStore(
           setAllEntities(response.articles as Array<Article>, { collection: 'article' }),
           {
             articlesCount: response.articlesCount
-          }
-      ] }))
+            }
+        ] })
+      );
     }
-  })
+  }),
+  withDataService({
+    actionName: 'toggleFavorite',
+    service$: (store, articleId: number) => {
+      const articlesService = inject(ArticlesService);
+      const article = store.articleEntityMap()[articleId]!;
+      console.log('optimistic update', article);
+      if (article.favorited) {
+        patchState(store, setEntity(
+          { ...article, favorited: false, favoritesCount: article.favoritesCount - 1 },
+          { collection: 'article' })
+        );
+      }
+      else {
+        patchState(store, setEntity(
+          { ...article, favorited: true, favoritesCount: article.favoritesCount + 1 },
+          { collection: 'article' })
+        );
+      }
+      // send the request to the server
+      return articlesService.toggleFavorite(articleId).pipe(
+      // transform the response to the store's data format
+      map(response => {
+        return [
+          setEntity(response, { collection: 'article' })
+      ] }));
+    }
+  }),
 );

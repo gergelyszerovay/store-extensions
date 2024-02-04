@@ -21,6 +21,6 @@ import { RouterLink } from '@angular/router';
 </nav>
   `
 })
-export class UiArticleListComponent {
+export class UiTopMenuComponent {
   items = input.required<{ slug: string, text: string}[]>();
 }

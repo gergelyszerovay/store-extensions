@@ -1,5 +1,5 @@
 {
-  "name": "ngx-signal-store-data-service-feature",
+  "name": "@gergelyszerovay/mock-component-store",
   "version": "0.0.1",
   "peerDependencies": {
     "@angular/common": "^17.1.0",

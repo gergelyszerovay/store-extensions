@@ -5,10 +5,10 @@ import { SinonSpy, fake } from "sinon";
 
 /**
  * rxMethod mock, it's an extended version of RxMethod, with an additional
- * [FAKE_RX_SS] property containing a Sinon fake (SinonSpy<[T]>).
+ * [FAKE_RX_METHOD] property containing a Sinon fake (SinonSpy<[T]>).
  */
-export const FAKE_RX_SS = Symbol("FAKE_RX_SS");
-export type FakeRxMethod<T> = RxMethod<T> & { [FAKE_RX_SS]: SinonSpy<[T]> };
+export const FAKE_RX_METHOD = Symbol("FAKE_RX_METHOD");
+export type FakeRxMethod<T> = RxMethod<T> & { [FAKE_RX_METHOD]: SinonSpy<[T]> };
 
 /**
  * Creates a new rxMethod mock.
@@ -24,7 +24,7 @@ export type FakeRxMethod<T> = RxMethod<T> & { [FAKE_RX_SS]: SinonSpy<[T]> };
 export function newMockRxMethod<T>(): FakeRxMethod<T> {
   const f = fake<[T]>();
   const r = rxMethod(tap((x) => f(x))) as FakeRxMethod<T>;
-  r[FAKE_RX_SS] = f;
+  r[FAKE_RX_METHOD] = f;
   return r;
 }
 
@@ -55,5 +55,5 @@ export function asFakeRxMethod<T>(rxMethod: RxMethod<T>): FakeRxMethod<T> {
  * @returns {sinon.SinonSpy<[T], unknown>} The Sinon fake capturing calls to the RxMethod.
  */
 export function getRxMethodFake<T>(rxMethod: RxMethod<T>): SinonSpy<[T], unknown> {
-  return asFakeRxMethod(rxMethod)[FAKE_RX_SS];
+  return asFakeRxMethod(rxMethod)[FAKE_RX_METHOD];
 }

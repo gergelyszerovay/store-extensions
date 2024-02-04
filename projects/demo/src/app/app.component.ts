@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
-import { UiArticleListComponent } from "./ui-components/ui-top-menu.component";
+import { UiTopMenuComponent } from "./ui-components/ui-top-menu.component";
 
 @Component({
   standalone: true,
   selector: 'app-root',
   imports: [
       RouterOutlet, RouterLink,
-      UiArticleListComponent
+      UiTopMenuComponent
   ],
   template: `
 <div class="max-w-2xl mx-auto">

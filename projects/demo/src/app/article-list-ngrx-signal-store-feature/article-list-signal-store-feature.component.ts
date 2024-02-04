@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, Component, effect, inject, input, untracked } from '@angular/core';
 import { UiArticleListComponent } from '../ui-components/ui-article-list.component';
 import { UiPaginationComponent } from '../ui-components/ui-pagination.component';
-// import { HttpRequestStateErrorPipe } from '../services/articles.service';
-import { LogSignalStoreState } from 'ngx-signal-store-logger';
+import { LogSignalStoreState } from '@gergelyszerovay/signal-store-logger';
 import { ArticleListSignalStoreWithFeature } from './article-list-signal-store-with-feature.store';
 
 @Component({
@@ -10,8 +9,7 @@ import { ArticleListSignalStoreWithFeature } from './article-list-signal-store-w
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    UiArticleListComponent, UiPaginationComponent,
-    // HttpRequestStateErrorPipe
+    UiArticleListComponent, UiPaginationComponent
   ],
   providers: [ArticleListSignalStoreWithFeature],
   template: `
@@ -20,11 +18,15 @@ import { ArticleListSignalStoreWithFeature } from './article-list-signal-store-w
   <div>Loading...</div>
 }
 @if (store.isLoadArticlesFetched()) {
-  <app-ui-article-list [articles]="store.articleEntities()"/>
+  <app-ui-article-list
+    [articles]="store.articleEntities()"
+    (toggleFavorite)="store.toggleFavorite($event)"
+  />
   <app-ui-pagination
     [selectedPage]="store.pagination().selectedPage"
     [totalPages]="store.pagination().totalPages"
-    (onPageSelected)="store.setSelectedPage($event); store.loadArticles();" />
+    (onPageSelected)="store.setSelectedPage($event); store.loadArticles();"
+  />
 }
 @if (store.getLoadArticlesError(); as error) {
   {{ error.errorMessage }}
@@ -32,6 +34,7 @@ import { ArticleListSignalStoreWithFeature } from './article-list-signal-store-w
   `
 })
 export class ArticleListComponent_SSF {
+  // we get these from the router, as we use withComponentInputBinding()
   selectedPage = input<string | undefined>(undefined);
   pageSize = input<string | undefined>(undefined);
 
@@ -42,14 +45,16 @@ export class ArticleListComponent_SSF {
     LogSignalStoreState('ArticleListSignalStoreWithFeature', this.store);
 
     effect(() => {
+      // the effect track these signals
       const selectedPage = this.selectedPage();
       const pageSize = this.pageSize();
+      console.log('router input ➡️ store (effect)', selectedPage, pageSize);
+      // we don't want to track anything from this line
       untracked(() => {
-        console.log('effect input', selectedPage, pageSize);
         this.store.setSelectedPage(selectedPage);
         this.store.setPageSize(pageSize);
         this.store.loadArticles();
       });
-    }, { allowSignalWrites: true });
+    });
   }
 }
