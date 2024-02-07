@@ -4,6 +4,8 @@ The `withDataService` feature connects a data service to the store and tracks th
 
 To start the demo app, clone this repo, run `pnpm install` and `pnpm run start`, then open http://localhost:4200/article-list-signal-store-with-feature in your browser.
 
+Here is the source of the demo app's SignalStore: https://github.com/gergelyszerovay/store-extensions/tree/main/projects/demo/src/app/article-list-ngrx-signal-store-feature
+
 ## HTTP Request state
 
 The `withDataService` feature represents the request state with the `HttpRequestState` data type:
@@ -56,6 +58,8 @@ This option passes a callback function to `withDataService`. The callback functi
 This is an example of the callback function:
 
 ```ts
+  withDataService({
+    actionName: 'loadArticles',
     service: (store /*, rxParams: void*/) => {
       const articlesService = inject(ArticlesService);
       return articlesService.getArticles({
@@ -72,6 +76,7 @@ This is an example of the callback function:
         ] })
       );
     }
+  })
 ```
 
 It injects the service, creates the observable, and maps the response to a list of partial states (`articlesCount: response.articlesCount`) or partial state updaters (`setAllEntities()`). This data structure is similar to the parameters of `patchState`. 
@@ -79,7 +84,9 @@ It injects the service, creates the observable, and maps the response to a list 
 The callback function can implement the optimistic update pattern. It immediately updates the state when called, and when a response is received from the server, it updates the state a second time:
 
 ```ts
-   service: (store, articleId: number) => {
+  withDataService({
+    actionName: 'toggleFavorite',
+    service: (store, articleId: number) => {
       // inject the service
       const articlesService = inject(ArticlesService);
       // optimistic update
@@ -105,6 +112,7 @@ The callback function can implement the optimistic update pattern. It immediatel
           setEntity(response, { collection: 'article' })
       ] }));
     }
+  })
 ```
 
 ### extractHttpErrorMessageFn
