@@ -43,8 +43,10 @@ export const ArticleListSignalStoreWithFeature = signalStore(
   })),
   withDataService({
     actionName: 'loadArticles',
-    service$: (store /*, rxParams: void*/) => {
+    service: (store /*, rxParams: void*/) => {
+      // inject the service
       const articlesService = inject(ArticlesService);
+      // get the observable for sending the request to the server
       return articlesService.getArticles({
         limit: store.pageSize(),
         offset: store.selectedPage() * store.pageSize()
@@ -62,8 +64,10 @@ export const ArticleListSignalStoreWithFeature = signalStore(
   }),
   withDataService({
     actionName: 'toggleFavorite',
-    service$: (store, articleId: number) => {
+    service: (store, articleId: number) => {
+      // inject the service
       const articlesService = inject(ArticlesService);
+      // optimistic update
       const article = store.articleEntityMap()[articleId]!;
       console.log('optimistic update', article);
       if (article.favorited) {
@@ -78,7 +82,7 @@ export const ArticleListSignalStoreWithFeature = signalStore(
           { collection: 'article' })
         );
       }
-      // send the request to the server
+      // get the observable for sending the request to the server
       return articlesService.toggleFavorite(articleId).pipe(
       // transform the response to the store's data format
       map(response => {
@@ -86,5 +90,5 @@ export const ArticleListSignalStoreWithFeature = signalStore(
           setEntity(response, { collection: 'article' })
       ] }));
     }
-  }),
+  })
 );

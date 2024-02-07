@@ -14,7 +14,7 @@ import { ArticleListSignalStoreWithFeature } from './article-list-signal-store-w
   providers: [ArticleListSignalStoreWithFeature],
   template: `
 <h1 class="text-xl font-semibold my-4">SignalStore with a feature</h1>
-@if (store.isLoadArticlesEmpty() || store.isLoadArticlesFetching()) {
+@if (store.isLoadArticlesInitial() || store.isLoadArticlesFetching()) {
   <div>Loading...</div>
 }
 @if (store.isLoadArticlesFetched()) {
@@ -30,8 +30,7 @@ import { ArticleListSignalStoreWithFeature } from './article-list-signal-store-w
 }
 @if (store.getLoadArticlesError(); as error) {
   {{ error.errorMessage }}
-}
-  `
+}`
 })
 export class ArticleListComponent_SSF {
   // we get these from the router, as we use withComponentInputBinding()
@@ -45,16 +44,18 @@ export class ArticleListComponent_SSF {
     LogSignalStoreState('ArticleListSignalStoreWithFeature', this.store);
 
     effect(() => {
-      // the effect track these signals
+      // 1️⃣ the effect() tracks this two signals only
       const selectedPage = this.selectedPage();
       const pageSize = this.pageSize();
-      console.log('router input ➡️ store (effect)', selectedPage, pageSize);
-      // we don't want to track anything from this line
-      untracked(() => {
+      // 2️⃣ we wrap the function we want to execute on signal change
+      // with an untracked() function
+      untracked(() => { // 👈
+        // we don't want to track anything in this block
         this.store.setSelectedPage(selectedPage);
         this.store.setPageSize(pageSize);
         this.store.loadArticles();
       });
+      console.log('router input ➡️ store (effect)', selectedPage, pageSize);
     });
   }
 }

@@ -10,47 +10,7 @@ import { DeepReadonly } from "ts-essentials";
 import { StateSignal } from "@ngrx/signals/src/state-signal";
 import { RxMethod } from "@gergelyszerovay/fake-rx-method";
 import { SignalStoreFeatureResult, SignalStoreSlices } from "@ngrx/signals/src/signal-store-models";
-
-export enum HttpRequestStates {
-  /**
-   * State when no request has been made.
-   */
-  EMPTY = 'EMPTY',
-  /**
-   * State when a request is started, and we're waiting for the server's response.
-   */
-  FETCHING = 'FETCHING',
-  /**
-   * State when a request has been successfully fetched.
-   */
-  FETCHED ='FETCHED'
-}
-
-/**
- * Represents an HTTP request error.
- */
-export type HttpRequestError = {
-  /**
-   * A message describing the error.
-   */
-  readonly errorMessage: string,
-  /**
-   * An optional error code.
-   */
-  readonly errorCode?: number
-  /**
-   * Optional custom error related data
-   */
-  readonly errorData?: unknown;
-}
-
-/**
- * Represents the state of an HTTP request, which can be one of the defined states
- * in the HttpRequestStates enum, or an HttpRequestError error object if the request fails.
- */
-export type HttpRequestState = HttpRequestStates | HttpRequestError;
-
-// ---
+import { HttpRequestError, HttpRequestState, HttpRequestStates } from "./http-request-state.model";
 
 function capitalize(str: string): string {
   return str.length > 1 ? str[0].toUpperCase() + str.substring(1) : str.toUpperCase();
@@ -60,7 +20,7 @@ function getWithDataServiceKeys(config: { actionName: string }) {
   const actionName = config.actionName;
   return {
     requestStateKey: `${actionName}RequestState`,
-    emptyKey: `is${capitalize(actionName)}Empty`,
+    inititalKey: `is${capitalize(actionName)}Initial`,
     fetchingKey: `is${capitalize(actionName)}Fetching`,
     fetchedKey: `is${capitalize(actionName)}Fetched`,
     errorKey: `get${capitalize(actionName)}Error`,
@@ -74,7 +34,7 @@ type WithDataServiceSlice<Collection extends string> = {
 
 type WithDataServiceSignals<ActionName extends string> =
   {
-    [K in ActionName as `is${Capitalize<K>}Empty`]: Signal<boolean>;
+    [K in ActionName as `is${Capitalize<K>}Initial`]: Signal<boolean>;
   } & {
   [K in ActionName as `is${Capitalize<K>}Fetching`]: Signal<boolean>;
   } & {
@@ -88,17 +48,17 @@ type WithDataServiceMethods<ActionName extends string, RxParams> =
     [K in ActionName as `${K}`]: RxMethod<RxParams>;
   }
 
-// function setEmpty<ActionName extends string>(
+// function setInitial<ActionName extends string>(
 //   actionName: ActionName
 // ): WithDataServiceSlice<ActionName> {
-//   return { [`${actionName}RequestState`]: HttpRequestStates.EMPTY } as WithDataServiceSlice<ActionName>;
+//   return { [`${actionName}RequestState`]: HttpRequestStates.INITIAL } as WithDataServiceSlice<ActionName>;
 // }
 
 export function withDataService<
   Input extends SignalStoreFeatureResult,
   ActionName extends string, RxParams = void>(options: {
     actionName: ActionName;
-    service$: (
+    service: (
       store: SignalStoreSlices<Input['state']> & Input['signals'] & Input['methods'] & StateSignal<{}>, rxParams: RxParams) =>
         Observable<Array<
         Partial<Input['state'] & {}> |
@@ -113,20 +73,20 @@ export function withDataService<
     methods: WithDataServiceMethods<ActionName, RxParams>
   }
 > {
-    const { requestStateKey, emptyKey, errorKey, fetchedKey, fetchingKey, fetchKey } =
+    const { requestStateKey, inititalKey, errorKey, fetchedKey, fetchingKey, fetchKey } =
   getWithDataServiceKeys(options);
 
-  const { actionName, service$ } = options;
+  const { actionName, service } = options;
   const extractHttpErrorMessageFn = options.extractHttpErrorMessageFn ?? extractHttpErrorMessage;
 
   // @ts-ignore
   return signalStoreFeature(
-    withState({ [requestStateKey]: HttpRequestStates.EMPTY }),
+    withState({ [requestStateKey]: HttpRequestStates.INITIAL }),
     withComputed((state: Record<string, Signal<unknown>>) => {
       const requestState = state[requestStateKey] as Signal<HttpRequestState>;
 
       return {
-        [emptyKey]: computed(() => requestState() === HttpRequestStates.EMPTY),
+        [inititalKey]: computed(() => requestState() === HttpRequestStates.INITIAL),
         [fetchingKey]: computed(() => requestState() === HttpRequestStates.FETCHING),
         [fetchedKey]: computed(() => requestState() === HttpRequestStates.FETCHED),
         [errorKey]: computed(() => {
@@ -141,7 +101,7 @@ export function withDataService<
             pipe(
               tap(() => patchState(store, setFetching(actionName))),
               // @ts-ignore
-              switchMap((rxParams) => runInInjectionContext(injector, () => service$(store, rxParams))),
+              switchMap((rxParams) => runInInjectionContext(injector, () => service(store, rxParams))),
               tapResponse(
                 (response) => {
                   patchState(store, setFetched(actionName), ...response);
