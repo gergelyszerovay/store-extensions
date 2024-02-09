@@ -4,7 +4,7 @@ import { MockProvider } from 'ng-mocks';
 import { provideRouter } from '@angular/router';
 import { ArticleListComponent_CS } from './article-list-component-store.component';
 import { ArticleListComponentStore } from './article-list-component-store.store';
-import { provideMockComponentStore } from 'ngx-mock-component-store';
+import { provideMockComponentStore } from '@gergelyszerovay/mock-component-store';
 
 describe('ArticleListComponent_CS', () => {
   let component: ArticleListComponent_CS;
@@ -26,20 +26,17 @@ describe('ArticleListComponent_CS', () => {
         //     totalPages: 10
         //   }
         // })
-      ]
+      ],
     })
-    .overrideComponent(
-      ArticleListComponent_CS,
-      {
+      .overrideComponent(ArticleListComponent_CS, {
         set: {
           providers: [
             MockProvider(ArticlesService), // injected in ArticleListComponentStore
-            provideMockComponentStore(ArticleListComponentStore)
-          ]
-        }
-      }
-    )
-    .compileComponents();
+            provideMockComponentStore(ArticleListComponentStore),
+          ],
+        },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(ArticleListComponent_CS);
     component = fixture.componentInstance;
@@ -51,5 +48,4 @@ describe('ArticleListComponent_CS', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-
 });

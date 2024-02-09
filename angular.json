@@ -7,23 +7,23 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "ngx-mock-component-store": {
+    "mock-component-store": {
       "projectType": "library",
-      "root": "projects/ngx-mock-component-store",
-      "sourceRoot": "projects/ngx-mock-component-store/src",
+      "root": "projects/mock-component-store",
+      "sourceRoot": "projects/mock-component-store/src",
       "prefix": "lib",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
-            "project": "projects/ngx-mock-component-store/ng-package.json"
+            "project": "projects/mock-component-store/ng-package.json"
           },
           "configurations": {
             "production": {
-              "tsConfig": "projects/ngx-mock-component-store/tsconfig.lib.prod.json"
+              "tsConfig": "projects/mock-component-store/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/ngx-mock-component-store/tsconfig.lib.json"
+              "tsConfig": "projects/mock-component-store/tsconfig.lib.json"
             }
           },
           "defaultConfiguration": "production"
@@ -31,32 +31,29 @@
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "tsConfig": "projects/ngx-mock-component-store/tsconfig.spec.json",
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ]
+            "tsConfig": "projects/mock-component-store/tsconfig.spec.json",
+            "polyfills": ["zone.js", "zone.js/testing"]
           }
         }
       }
     },
-    "ngx-mock-signal-store": {
+    "mock-signal-store": {
       "projectType": "library",
-      "root": "projects/ngx-mock-signal-store",
-      "sourceRoot": "projects/ngx-mock-signal-store/src",
+      "root": "projects/mock-signal-store",
+      "sourceRoot": "projects/mock-signal-store/src",
       "prefix": "lib",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
-            "project": "projects/ngx-mock-signal-store/ng-package.json"
+            "project": "projects/mock-signal-store/ng-package.json"
           },
           "configurations": {
             "production": {
-              "tsConfig": "projects/ngx-mock-signal-store/tsconfig.lib.prod.json"
+              "tsConfig": "projects/mock-signal-store/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/ngx-mock-signal-store/tsconfig.lib.json"
+              "tsConfig": "projects/mock-signal-store/tsconfig.lib.json"
             }
           },
           "defaultConfiguration": "production"
@@ -64,11 +61,8 @@
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "tsConfig": "projects/ngx-mock-signal-store/tsconfig.spec.json",
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ]
+            "tsConfig": "projects/mock-signal-store/tsconfig.spec.json",
+            "polyfills": ["zone.js", "zone.js/testing"]
           }
         }
       }
@@ -90,18 +84,11 @@
             "outputPath": "dist/demo",
             "index": "projects/demo/src/index.html",
             "browser": "projects/demo/src/main.ts",
-            "polyfills": [
-              "zone.js"
-            ],
+            "polyfills": ["zone.js"],
             "tsConfig": "projects/demo/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
-            "assets": [
-              "projects/demo/src/favicon.ico",
-              "projects/demo/src/assets"
-            ],
-            "styles": [
-              "projects/demo/src/styles.scss"
-            ],
+            "assets": ["projects/demo/src/favicon.ico", "projects/demo/src/assets"],
+            "styles": ["projects/demo/src/styles.scss"],
             "scripts": []
           },
           "configurations": {
@@ -149,41 +136,33 @@
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ],
+            "polyfills": ["zone.js", "zone.js/testing"],
             "tsConfig": "projects/demo/tsconfig.spec.json",
             "inlineStyleLanguage": "scss",
-            "assets": [
-              "projects/demo/src/favicon.ico",
-              "projects/demo/src/assets"
-            ],
-            "styles": [
-              "projects/demo/src/styles.scss"
-            ],
+            "assets": ["projects/demo/src/favicon.ico", "projects/demo/src/assets"],
+            "styles": ["projects/demo/src/styles.scss"],
             "scripts": []
           }
         }
       }
     },
-    "ngx-signal-store-logger": {
+    "signal-store-logger": {
       "projectType": "library",
-      "root": "projects/ngx-signal-store-logger",
-      "sourceRoot": "projects/ngx-signal-store-logger/src",
+      "root": "projects/signal-store-logger",
+      "sourceRoot": "projects/signal-store-logger/src",
       "prefix": "lib",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
-            "project": "projects/ngx-signal-store-logger/ng-package.json"
+            "project": "projects/signal-store-logger/ng-package.json"
           },
           "configurations": {
             "production": {
-              "tsConfig": "projects/ngx-signal-store-logger/tsconfig.lib.prod.json"
+              "tsConfig": "projects/signal-store-logger/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/ngx-signal-store-logger/tsconfig.lib.json"
+              "tsConfig": "projects/signal-store-logger/tsconfig.lib.json"
             }
           },
           "defaultConfiguration": "production"
@@ -191,32 +170,29 @@
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "tsConfig": "projects/ngx-signal-store-logger/tsconfig.spec.json",
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ]
+            "tsConfig": "projects/signal-store-logger/tsconfig.spec.json",
+            "polyfills": ["zone.js", "zone.js/testing"]
           }
         }
       }
     },
-    "ngx-signal-store-data-service-feature": {
+    "signal-store-data-service-feature": {
       "projectType": "library",
-      "root": "projects/ngx-signal-store-data-service-feature",
-      "sourceRoot": "projects/ngx-signal-store-data-service-feature/src",
+      "root": "projects/signal-store-data-service-feature",
+      "sourceRoot": "projects/signal-store-data-service-feature/src",
       "prefix": "lib",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
-            "project": "projects/ngx-signal-store-data-service-feature/ng-package.json"
+            "project": "projects/signal-store-data-service-feature/ng-package.json"
           },
           "configurations": {
             "production": {
-              "tsConfig": "projects/ngx-signal-store-data-service-feature/tsconfig.lib.prod.json"
+              "tsConfig": "projects/signal-store-data-service-feature/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/ngx-signal-store-data-service-feature/tsconfig.lib.json"
+              "tsConfig": "projects/signal-store-data-service-feature/tsconfig.lib.json"
             }
           },
           "defaultConfiguration": "production"
@@ -224,11 +200,8 @@
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "tsConfig": "projects/ngx-signal-store-data-service-feature/tsconfig.spec.json",
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ]
+            "tsConfig": "projects/signal-store-data-service-feature/tsconfig.spec.json",
+            "polyfills": ["zone.js", "zone.js/testing"]
           }
         }
       }
@@ -258,10 +231,7 @@
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
             "tsConfig": "projects/fake-rx-method/tsconfig.spec.json",
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ]
+            "polyfills": ["zone.js", "zone.js/testing"]
           }
         }
       }

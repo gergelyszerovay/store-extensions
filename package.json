@@ -4,11 +4,11 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build ngx-mock-signal-store": "ng build ngx-mock-signal-store",
+    "build mock-signal-store": "ng build mock-signal-store",
     "watch": "ng build --watch --configuration development",
     "test demo": "ng test demo",
-    "test ngx-mock-signal-store": "ng test ngx-mock-signal-store",
-    "test ngx-mock-component-store": "ng test ngx-mock-component-store"
+    "test mock-signal-store": "ng test mock-signal-store",
+    "test mock-component-store": "ng test mock-component-store"
   },
   "private": true,
   "dependencies": {
@@ -52,6 +52,7 @@
     "ng-mocks": "^14.12.1",
     "ng-packagr": "^17.1.0",
     "postcss": "^8.4.33",
+    "prettier": "3.2.5",
     "rxjs-marbles": "^7.0.1",
     "tailwindcss": "^3.4.1",
     "ts-essentials": "^9.4.1",

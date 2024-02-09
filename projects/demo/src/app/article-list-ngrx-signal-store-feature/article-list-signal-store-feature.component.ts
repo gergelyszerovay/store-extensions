@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input, untracked } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  input,
+  untracked,
+} from '@angular/core';
 import { UiArticleListComponent } from '../ui-components/ui-article-list.component';
 import { UiPaginationComponent } from '../ui-components/ui-pagination.component';
 import { LogSignalStoreState } from '@gergelyszerovay/signal-store-logger';
@@ -8,29 +15,31 @@ import { ArticleListSignalStoreWithFeature } from './article-list-signal-store-w
   selector: 'app-article-list-ssf',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    UiArticleListComponent, UiPaginationComponent
-  ],
+  imports: [UiArticleListComponent, UiPaginationComponent],
   providers: [ArticleListSignalStoreWithFeature],
-  template: `
-<h1 class="text-xl font-semibold my-4">SignalStore with a feature</h1>
-@if (store.isLoadArticlesInitial() || store.isLoadArticlesFetching()) {
-  <div>Loading...</div>
-}
-@if (store.isLoadArticlesFetched()) {
-  <app-ui-article-list
-    [articles]="store.articleEntities()"
-    (toggleFavorite)="store.toggleFavorite($event)"
-  />
-  <app-ui-pagination
-    [selectedPage]="store.pagination().selectedPage"
-    [totalPages]="store.pagination().totalPages"
-    (onPageSelected)="store.setSelectedPage($event); store.loadArticles();"
-  />
-}
-@if (store.getLoadArticlesError(); as error) {
-  {{ error.errorMessage }}
-}`
+  template: ` <h1 class="text-xl font-semibold my-4">SignalStore with a feature</h1>
+    <!-- 👇 Main UI state: initial / fetching 📡 -->
+    @if (store.isLoadArticlesInitial() || store.isLoadArticlesFetching()) {
+      <div>Loading...</div>
+    }
+    <!-- 👇 Main UI state: fetched 📡 -->
+    @if (store.isLoadArticlesFetched()) {
+      <!-- 👇 Article list UI component -->
+      <app-ui-article-list
+        [articles]="store.articleEntities()"
+        (toggleFavorite)="store.toggleFavorite($event)"
+      />
+      <!-- 👇 Pagination UI component -->
+      <app-ui-pagination
+        [selectedPage]="store.pagination().selectedPage"
+        [totalPages]="store.pagination().totalPages"
+        (onPageSelected)="store.setSelectedPage($event); store.loadArticles()"
+      />
+    }
+    <!-- 👇 Main UI state: error 📡 -->
+    @if (store.getLoadArticlesError(); as error) {
+      {{ error.errorMessage }}
+    }`,
 })
 export class ArticleListComponent_SSF {
   // we get these from the router, as we use withComponentInputBinding()
@@ -39,8 +48,7 @@ export class ArticleListComponent_SSF {
 
   readonly store = inject(ArticleListSignalStoreWithFeature);
 
-  constructor(
-  ) {
+  constructor() {
     LogSignalStoreState('ArticleListSignalStoreWithFeature', this.store);
 
     effect(() => {
@@ -49,13 +57,14 @@ export class ArticleListComponent_SSF {
       const pageSize = this.pageSize();
       // 2️⃣ we wrap the function we want to execute on signal change
       // with an untracked() function
-      untracked(() => { // 👈
+      untracked(() => {
+        // 👈
         // we don't want to track anything in this block
         this.store.setSelectedPage(selectedPage);
         this.store.setPageSize(pageSize);
         this.store.loadArticles();
       });
-      console.log('router input ➡️ store (effect)', selectedPage, pageSize);
+      console.log('router inputs ➡️ store (effect)', selectedPage, pageSize);
     });
   }
 }
