@@ -7,7 +7,6 @@
     "build mock-signal-store": "ng build mock-signal-store",
     "watch": "ng build --watch --configuration development",
     "test demo": "ng test demo",
-    "test fake-rx-method": "ng test fake-rx-method --code-coverage",
     "test mock-signal-store": "ng test mock-signal-store --code-coverage",
     "test mock-component-store": "ng test mock-component-store --code-coverage",
     "storybook demo": "ng run demo:storybook"

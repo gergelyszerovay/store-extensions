@@ -7,8 +7,8 @@ import {
   getState,
 } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { Injectable, computed, inject, signal } from '@angular/core';
-import { pipe, switchMap, tap, lastValueFrom, Observable, of, Subject } from 'rxjs';
+import { Injectable, computed, inject } from '@angular/core';
+import { pipe, switchMap, tap, Observable, of, Subject } from 'rxjs';
 import { tapResponse } from '@ngrx/component-store';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
@@ -16,10 +16,9 @@ import {
   MockSignalStore,
   UnwrapProvider,
   asMockSignalStore,
-  asSinonSpy,
   provideMockSignalStore,
-} from './mock-signal-store';
-import { getRxMethodFake } from '../../../fake-rx-method/src/lib/fake-rx-method';
+} from '../src/mock-signal-store';
+import { getRxMethodFake } from '../src/fake-rx-method';
 
 @Injectable()
 class SampleService {
@@ -73,11 +72,11 @@ const SampleSignalStore = signalStore(
           },
           (errorResponse: HttpErrorResponse) => {
             store.setNestedObjectValue(0);
-          },
-        ),
-      ),
+          }
+        )
+      )
     ),
-  })),
+  }))
 );
 
 describe('mockSignalStore', () => {
@@ -116,24 +115,25 @@ describe('mockSignalStore', () => {
       expect(store.doubleNumericValue()).toBe(33);
     });
 
-    it('should mock the updater with a Sinon fake (asMockSignalStore)', () => {
+    it('should mock the updater with a Sinon fake', () => {
       expect(mockStore.setValue.callCount).toBe(0);
       store.setValue(11);
       expect(mockStore.setValue.callCount).toBe(1);
       expect(mockStore.setValue.lastCall.args).toEqual([11]);
     });
 
-    it('should mock the updater with a Sinon fake (asSinonSpy)', () => {
-      const fake = asSinonSpy(mockStore.setValue);
-      expect(fake.callCount).toBe(0);
-      store.setValue(11);
-      expect(fake.callCount).toBe(1);
-      expect(fake.lastCall.args).toEqual([11]);
-    });
-
     it('should mock the rxMethod with a FakeRxMethod (imperative)', () => {
       expect(getRxMethodFake(store.rxMethod).callCount).toBe(0);
       store.rxMethod(22);
+      expect(getRxMethodFake(store.rxMethod).callCount).toBe(1);
+      expect(getRxMethodFake(store.rxMethod).lastCall.args).toEqual([22]);
+    });
+
+    it('should mock the rxMethod with a FakeRxMethod (declarative)', () => {
+      const o = new Subject<number>();
+      store.rxMethod(o);
+      expect(getRxMethodFake(store.rxMethod).callCount).toBe(0);
+      o.next(22);
       expect(getRxMethodFake(store.rxMethod).callCount).toBe(1);
       expect(getRxMethodFake(store.rxMethod).lastCall.args).toEqual([22]);
     });

@@ -2,12 +2,17 @@ import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {
   FakeRxMethod,
-  RxMethod,
   asFakeRxMethod,
   getRxMethodFake,
   newFakeRxMethod,
-} from './fake-rx-method';
+} from '../src/fake-rx-method';
 import { Subject } from 'rxjs';
+
+// import { RxMethod } from 'modules/signals/rxjs-interop/src/rx-method';
+import { Observable, Unsubscribable } from 'rxjs';
+import { Signal } from '@angular/core';
+type RxMethodInput<Input> = Input | Observable<Input> | Signal<Input>;
+export type RxMethod<Input> = ((input: RxMethodInput<Input>) => Unsubscribable) & Unsubscribable;
 
 @Component({
   selector: 'app-test',
@@ -20,7 +25,7 @@ export class TestComponent {
 }
 
 describe('FakeRxMethod', () => {
-  describe('newFakeRxMethod and getRxMethodFake', async () => {
+  describe('newFakeRxMethod and getRxMethodFake', () => {
     let component: TestComponent;
     let fixture: ComponentFixture<TestComponent>;
     let fakeRxMethod: FakeRxMethod<number>;

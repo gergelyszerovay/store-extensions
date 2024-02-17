@@ -12,12 +12,12 @@
     "skipLibCheck": true,
     "paths": {
       "@gergelyszerovay/mock-component-store": [
-/*        "./dist/mock-component-store" */
+        /*        "./dist/mock-component-store" */
         "./projects/mock-component-store/src/public-api.ts"
       ],
       "@gergelyszerovay/mock-signal-store": [
-/*        "./dist/mock-signal-store" */
-        "./projects/mock-signal-store/src/public-api.ts"
+        /*        "./dist/mock-signal-store" */
+        "./projects/mock-signal-store/index.ts"
       ],
       "@gergelyszerovay/signal-store-data-service-feature": [
         // "./dist/signal-store-data-service-feature"
@@ -26,10 +26,6 @@
       "@gergelyszerovay/signal-store-logger": [
         // "./dist/signal-store-logger"
         "./projects/signal-store-logger/src/public-api.ts"
-      ],
-      "@gergelyszerovay/fake-rx-method": [
-        // "./dist/fake-rx-method"
-        "./projects/fake-rx-method/src/public-api.ts"
       ]
     },
     "esModuleInterop": true,
@@ -41,10 +37,7 @@
     "target": "ES2022",
     "module": "ES2022",
     "useDefineForClassFields": false,
-    "lib": [
-      "ES2022",
-      "dom"
-    ],
+    "lib": ["ES2022", "dom"],
     "noErrorTruncation": true
   },
   "angularCompilerOptions": {

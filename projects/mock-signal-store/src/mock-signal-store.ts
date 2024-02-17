@@ -1,19 +1,37 @@
-import { Provider, ProviderToken, Signal, WritableSignal, isSignal, untracked, signal } from "@angular/core";
-import { getState, patchState } from "@ngrx/signals";
-import { StateSignal } from "@ngrx/signals/src/state-signal";
-import { SinonSpy, fake } from "sinon";
-import { FakeRxMethod, RxMethod, newMockRxMethod } from "@gergelyszerovay/fake-rx-method";
+import {
+  Provider,
+  ProviderToken,
+  Signal,
+  WritableSignal,
+  isSignal,
+  untracked,
+  signal,
+} from '@angular/core';
+
+import { SinonSpy, fake } from 'sinon';
+import { FakeRxMethod, newFakeRxMethod } from './fake-rx-method';
+
+// import { getState, patchState } from '../../src';
+import { getState, patchState } from '@ngrx/signals';
+
+// import { StateSignal } from '../../src/state-signal';
+import { StateSignal } from '@ngrx/signals/src/state-signal';
+
+// import { RxMethod } from 'modules/signals/rxjs-interop/src/rx-method';
+import { Observable, Unsubscribable } from 'rxjs';
+type RxMethodInput<Input> = Input | Observable<Input> | Signal<Input>;
+export type RxMethod<Input> = ((input: RxMethodInput<Input>) => Unsubscribable) & Unsubscribable;
 
 /**
  * Constructor type.
-*/
+ */
 interface Constructor<ClassType> {
   new (...args: never[]): ClassType;
 }
 
 /**
  * Function type.
-*/
+ */
 type Method<T extends readonly any[] = any[]> = (...args: T) => unknown;
 
 /**
@@ -21,16 +39,16 @@ type Method<T extends readonly any[] = any[]> = (...args: T) => unknown;
  *
  * - Signals are replaced by WritableSignals.
  * - RxMethods are replaced by FakeRxMethods.
- * - functions are replaced by Sinon mocks.
-*/
+ * - Functions are replaced by Sinon fakes.
+ */
 export type MockSignalStore<T> = {
   [K in keyof T]: T[K] extends Signal<infer V>
     ? WritableSignal<V>
     : T[K] extends RxMethod<infer R>
-    ? FakeRxMethod<R>
-    : T[K] extends Method<infer U>
-    ? SinonSpy<U>
-    : T[K];
+      ? FakeRxMethod<R>
+      : T[K] extends Method<infer U>
+        ? SinonSpy<U>
+        : T[K];
 };
 
 /**
@@ -66,15 +84,18 @@ type UnwrapSignal<T> = T extends Signal<infer U> ? U : never;
  * @param debug Flag to enable debug mode (default is false).
  */
 export type ProvideMockSignalStoreParams<T> = {
-  initialStatePatch?: Partial<InitialState<T>>,
-  initialComputedValues?: Omit<{
-    [K in SignalKeys<T>]?: UnwrapSignal<T[K]>;
-  }, keyof InitialState<T>>,
-  mockComputedSignals?: boolean, // true by default
-  mockMethods?: boolean, // true by default
-  mockRxMethods?: boolean, // true by default
-  debug?: boolean // false by default
-}
+  initialStatePatch?: Partial<InitialState<T>>;
+  initialComputedValues?: Omit<
+    {
+      [K in SignalKeys<T>]?: UnwrapSignal<T[K]>;
+    },
+    keyof InitialState<T>
+  >;
+  mockComputedSignals?: boolean;
+  mockMethods?: boolean;
+  mockRxMethods?: boolean;
+  debug?: boolean;
+};
 
 /**
  * Provides a mock version of signal store.
@@ -89,7 +110,16 @@ export type ProvideMockSignalStoreParams<T> = {
  * ```typescript
  * // component:
  *
- * export const ArticleListSignalStore = signalStore(...);
+ * export const ArticleListSignalStore = signalStore(
+ *   withState<ArticleListState>(initialArticleListState),
+ *   withComputed(({ articlesCount, pageSize }) => ({
+ *      totalPages: computed(() => Math.ceil(articlesCount() / pageSize())),
+ *   })),
+ *   withComputed(({ selectedPage, totalPages }) => ({
+ *     pagination: computed(() => ({ selectedPage: selectedPage(), totalPages: totalPages() })),
+ *   })),
+ *   // ...
+ * );
  *
  * @Component(...)
  * export class ArticleListComponent_SS {
@@ -99,6 +129,7 @@ export type ProvideMockSignalStoreParams<T> = {
  *
  * // test:
  *
+ * // we have to use UnwrapProvider<T> to get the real type of a SignalStore
  * let store: UnwrapProvider<typeof ArticleListSignalStore>;
  * let mockStore: MockSignalStore<typeof store>;
  *
@@ -112,9 +143,11 @@ export type ProvideMockSignalStoreParams<T> = {
  *   ArticleListComponent_SS,
  *   {
  *     set: {
- *       providers: [
+ *       providers: [ // override the component level providers
  *         MockProvider(ArticlesService), // injected in ArticleListSignalStore
  *         provideMockSignalStore(ArticleListSignalStore, {
+ *           // if mockComputedSignals is enabled (default),
+ *           // you must provide an initial value for each computed signals
  *           initialComputedValues: {
  *             totalPages: 0,
  *             pagination: { selectedPage: 0, totalPages: 0 }
@@ -134,7 +167,7 @@ export type ProvideMockSignalStoreParams<T> = {
 
 export function provideMockSignalStore<ClassType extends StateSignal<object>>(
   classConstructor: Constructor<ClassType>,
-  params?: ProvideMockSignalStoreParams<ClassType>
+  params?: ProvideMockSignalStoreParams<ClassType>,
 ): Provider {
   let cachedStore: ClassType | undefined = undefined;
   return {
@@ -152,8 +185,15 @@ export function provideMockSignalStore<ClassType extends StateSignal<object>>(
 
       const pluckerSignals = keys.filter((k) => isSignal(store[k]) && k in getState(store));
       const combinedSignals = keys.filter((k) => isSignal(store[k]) && !pluckerSignals.includes(k));
-      const rxMethods = keys.filter((k) => typeof(store[k]) === 'function' && !isSignal(store[k]) && 'unsubscribe' in (store[k] as object));
-      const methods = keys.filter((k) => typeof(store[k]) === 'function' && !isSignal(store[k]) && !rxMethods.includes(k));
+      const rxMethods = keys.filter(
+        (k) =>
+          typeof store[k] === 'function' &&
+          !isSignal(store[k]) &&
+          'unsubscribe' in (store[k] as object),
+      );
+      const methods = keys.filter(
+        (k) => typeof store[k] === 'function' && !isSignal(store[k]) && !rxMethods.includes(k),
+      );
 
       if (params?.debug === true) {
         console.log('pluckerSignals', pluckerSignals);
@@ -164,42 +204,44 @@ export function provideMockSignalStore<ClassType extends StateSignal<object>>(
 
       if (params?.mockComputedSignals !== false) {
         combinedSignals.forEach((k) => {
-          if (params?.initialComputedValues && k in params?.initialComputedValues) {
+          if (params?.initialComputedValues && k in params.initialComputedValues) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             store[k] = signal(params?.initialComputedValues?.[k]);
-          }
-          else {
+          } else {
             throw new Error(`${String(k)} should have an initial value`);
           }
         });
       }
 
       if (params?.mockMethods !== false) {
-        methods.forEach(k => {
+        methods.forEach((k) => {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           store[k] = fake();
         });
       }
 
       if (params?.mockRxMethods !== false) {
-        rxMethods.forEach(k => {
+        rxMethods.forEach((k) => {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
-          store[k] = newMockRxMethod<unknown>();
+          store[k] = newFakeRxMethod<unknown>();
         });
       }
 
       if (params?.initialStatePatch) {
         untracked(() => {
-          patchState(store, s => ({...s, ...params.initialStatePatch }));
+          patchState(store, (s) => ({ ...s, ...params.initialStatePatch }));
         });
       }
 
       if (params?.debug === true) {
-        console.log('Mocked store:', store)
+        console.log('Mocked store:', store);
       }
 
-      return store as MockSignalStore<ClassType>;;
-    }
+      return store as MockSignalStore<ClassType>;
+    },
   };
 }
 
@@ -208,13 +250,20 @@ export function provideMockSignalStore<ClassType extends StateSignal<object>>(
  *
  * The signalStore() function returns a provider for the generated signal store.
  */
-export type UnwrapProvider<T> = (T) extends ProviderToken<infer U> ? U : never;
+export type UnwrapProvider<T> = T extends ProviderToken<infer U> ? U : never;
 
+/**
+ * Converts the type of a SignalStore to MockSignalStore
+ */
 export function asMockSignalStore<T>(s: T): MockSignalStore<T> {
   return s as MockSignalStore<T>;
 }
 
+/**
+ * Converts the type of a function to a SInon Spy
+ */
 export function asSinonSpy<TArgs extends readonly any[] = any[], TReturnValue = any>(
-  fn: (...x: TArgs) => TReturnValue): SinonSpy<TArgs, TReturnValue> {
+  fn: (...x: TArgs) => TReturnValue,
+): SinonSpy<TArgs, TReturnValue> {
   return fn as unknown as SinonSpy<TArgs, TReturnValue>;
 }

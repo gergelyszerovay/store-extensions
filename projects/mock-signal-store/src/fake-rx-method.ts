@@ -1,7 +1,12 @@
-import { Signal } from '@angular/core';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { Observable, Unsubscribable, tap } from 'rxjs';
+import { tap } from 'rxjs';
 import { SinonSpy, fake } from 'sinon';
+
+// import { RxMethod } from 'modules/signals/rxjs-interop/src/rx-method';
+import { Observable, Unsubscribable } from 'rxjs';
+import { Signal } from '@angular/core';
+type RxMethodInput<Input> = Input | Observable<Input> | Signal<Input>;
+export type RxMethod<Input> = ((input: RxMethodInput<Input>) => Unsubscribable) & Unsubscribable;
 
 /**
  * rxMethod mock, it's an extended version of RxMethod, with an additional
@@ -16,7 +21,7 @@ export type FakeRxMethod<T> = RxMethod<T> & { [FAKE_RX_METHOD]: SinonSpy<[T]> };
  *
  * The Sinon fake stores the call information, when:
  * - the generated function was called with a static value.
- * - the generated function was called with a signal argument, and the signal emits.
+ * - the generated function was called with a signal argument, and the signal's value changes.
  * - the generated function was called with an observable argument, and the observable emits.
  *
  * @returns {FakeRxMethod<T>} A new rxMethod mock.
@@ -27,12 +32,6 @@ export function newFakeRxMethod<T>(): FakeRxMethod<T> {
   r[FAKE_RX_METHOD] = f;
   return r;
 }
-
-/**
- * Type of an rxMethod, @ngrx/signals/rxjs-interop doesn't export it.
- */
-type RxMethodInput<Input> = Input | Observable<Input> | Signal<Input>;
-export type RxMethod<Input> = ((input: RxMethodInput<Input>) => Unsubscribable) & Unsubscribable;
 
 /**
  * Converts the type of a (mocked) RxMethod into a FakeRxMethod.
