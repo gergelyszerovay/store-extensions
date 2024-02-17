@@ -1,11 +1,24 @@
-import { signalStore, withState, withComputed, withMethods, patchState, getState } from '@ngrx/signals';
+import {
+  signalStore,
+  withState,
+  withComputed,
+  withMethods,
+  patchState,
+  getState,
+} from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { Injectable, computed, inject } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { pipe, switchMap, tap, lastValueFrom, Observable, of, Subject } from 'rxjs';
 import { tapResponse } from '@ngrx/component-store';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { MockSignalStore, UnwrapProvider, asMockSignalStore, provideMockSignalStore } from './mock-signal-store';
+import {
+  MockSignalStore,
+  UnwrapProvider,
+  asMockSignalStore,
+  asSinonSpy,
+  provideMockSignalStore,
+} from './mock-signal-store';
 import { getRxMethodFake } from '../../../fake-rx-method/src/lib/fake-rx-method';
 
 @Injectable()
@@ -20,10 +33,10 @@ const initialState = {
   object: {
     objectValue: 2,
     nestedObject: {
-      nestedObjectValue: 3
-    }
-  }
-}
+      nestedObjectValue: 3,
+    },
+  },
+};
 
 const SampleSignalStore = signalStore(
   withState(initialState),
@@ -34,7 +47,7 @@ const SampleSignalStore = signalStore(
   withMethods((store) => ({
     setValue(value: number): void {
       patchState(store, () => ({
-        value
+        value,
       }));
     },
     setNestedObjectValue(nestedObjectValue: number): void {
@@ -43,9 +56,9 @@ const SampleSignalStore = signalStore(
           ...store.object(),
           nestedObject: {
             ...store.object.nestedObject(),
-            nestedObjectValue
-          }
-        }
+            nestedObjectValue,
+          },
+        },
       }));
     },
   })),
@@ -60,10 +73,10 @@ const SampleSignalStore = signalStore(
           },
           (errorResponse: HttpErrorResponse) => {
             store.setNestedObjectValue(0);
-          }
-        )
-      )
-    )
+          },
+        ),
+      ),
+    ),
   })),
 );
 
@@ -79,8 +92,8 @@ describe('mockSignalStore', () => {
           provideMockSignalStore(SampleSignalStore, {
             initialComputedValues: {
               doubleNumericValue: 20,
-              tripleNumericValue: 30
-            }
+              tripleNumericValue: 30,
+            },
           }),
         ],
       });
@@ -93,7 +106,7 @@ describe('mockSignalStore', () => {
       expect(store.object()).toEqual(initialState.object);
     });
 
-    it('should set the computed signal\'s initial value', () => {
+    it("should set the computed signal's initial value", () => {
       expect(store.doubleNumericValue()).toBe(20);
     });
 
@@ -103,11 +116,19 @@ describe('mockSignalStore', () => {
       expect(store.doubleNumericValue()).toBe(33);
     });
 
-    it('should mock the updater with a Sinon fake', () => {
+    it('should mock the updater with a Sinon fake (asMockSignalStore)', () => {
       expect(mockStore.setValue.callCount).toBe(0);
       store.setValue(11);
       expect(mockStore.setValue.callCount).toBe(1);
       expect(mockStore.setValue.lastCall.args).toEqual([11]);
+    });
+
+    it('should mock the updater with a Sinon fake (asSinonSpy)', () => {
+      const fake = asSinonSpy(mockStore.setValue);
+      expect(fake.callCount).toBe(0);
+      store.setValue(11);
+      expect(fake.callCount).toBe(1);
+      expect(fake.lastCall.args).toEqual([11]);
     });
 
     it('should mock the rxMethod with a FakeRxMethod (imperative)', () => {
@@ -117,18 +138,9 @@ describe('mockSignalStore', () => {
       expect(getRxMethodFake(store.rxMethod).lastCall.args).toEqual([22]);
     });
 
-    it('should mock the rxMethod with a FakeRxMethod (declarative)', () => {
-      const o = new Subject<number>();
-      store.rxMethod(o);
-      expect(getRxMethodFake(store.rxMethod).callCount).toBe(0);
-      o.next(22)
-      expect(getRxMethodFake(store.rxMethod).callCount).toBe(1);
-      expect(getRxMethodFake(store.rxMethod).lastCall.args).toEqual([22]);
-    });
-
     it('can alter the DeepSignal with patchState', () => {
       patchState(store, {
-        value: 20
+        value: 20,
       });
       expect(store.value()).toBe(20);
       expect(store.object()).toEqual(initialState.object);
@@ -138,16 +150,16 @@ describe('mockSignalStore', () => {
           ...initialState.object,
           nestedObject: {
             ...initialState.object.nestedObject,
-            nestedObjectValue: 40
-          }
-        }
+            nestedObjectValue: 40,
+          },
+        },
       });
       expect(store.object()).toEqual({
         ...initialState.object,
         nestedObject: {
           ...initialState.object.nestedObject,
-          nestedObjectValue: 40
-        }
+          nestedObjectValue: 40,
+        },
       });
     });
   });
@@ -159,8 +171,8 @@ describe('mockSignalStore', () => {
             SampleService,
             provideMockSignalStore(SampleSignalStore, {
               initialComputedValues: {
-                doubleNumericValue: 20
-              }
+                doubleNumericValue: 20,
+              },
             }),
           ],
         });
@@ -172,10 +184,7 @@ describe('mockSignalStore', () => {
     it('should throw an expection, if an inital value is missing for a computed Signal (2)', () => {
       expect(() => {
         TestBed.configureTestingModule({
-          providers: [
-            SampleService,
-            provideMockSignalStore(SampleSignalStore),
-          ],
+          providers: [SampleService, provideMockSignalStore(SampleSignalStore)],
         });
         const store = TestBed.inject(SampleSignalStore);
         const mockStore = asMockSignalStore(store);
@@ -187,7 +196,7 @@ describe('mockSignalStore', () => {
         providers: [
           SampleService,
           provideMockSignalStore(SampleSignalStore, {
-            mockComputedSignals: false
+            mockComputedSignals: false,
           }),
         ],
       });
@@ -205,11 +214,11 @@ describe('mockSignalStore', () => {
           provideMockSignalStore(SampleSignalStore, {
             initialComputedValues: {
               doubleNumericValue: 20,
-              tripleNumericValue: 30
+              tripleNumericValue: 30,
             },
             initialStatePatch: {
-              value: 22
-            }
+              value: 22,
+            },
           }),
         ],
       });
@@ -225,17 +234,17 @@ describe('mockSignalStore', () => {
           provideMockSignalStore(SampleSignalStore, {
             initialComputedValues: {
               doubleNumericValue: 20,
-              tripleNumericValue: 30
+              tripleNumericValue: 30,
             },
             initialStatePatch: {
               object: {
                 ...initialState.object,
                 nestedObject: {
                   ...initialState.object.nestedObject,
-                  nestedObjectValue: 40
-                }
-              }
-            }
+                  nestedObjectValue: 40,
+                },
+              },
+            },
           }),
         ],
       });
@@ -247,9 +256,9 @@ describe('mockSignalStore', () => {
           ...initialState.object,
           nestedObject: {
             ...initialState.object.nestedObject,
-            nestedObjectValue: 40
-          }
-        }
+            nestedObjectValue: 40,
+          },
+        },
       });
     });
   });

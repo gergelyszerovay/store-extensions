@@ -21,6 +21,7 @@ import { UiPaginationComponent } from '../ui-components/ui-pagination.component'
 describe('ArticleListComponent_SS - mockComputedSignals: true + mock all child components', () => {
   let component: ArticleListComponent_SS;
   let fixture: ComponentFixture<ArticleListComponent_SS>;
+  // we have to use UnwrapProvider<T> to get the real type of a SignalStore
   let store: UnwrapProvider<typeof ArticleListSignalStore>;
   let mockStore: MockSignalStore<typeof store>;
 
@@ -36,8 +37,11 @@ describe('ArticleListComponent_SS - mockComputedSignals: true + mock all child c
       .overrideComponent(ArticleListComponent_SS, {
         set: {
           providers: [
+            // override the component level providers
             MockProvider(ArticlesService), // injected in ArticleListSignalStore
             provideMockSignalStore(ArticleListSignalStore, {
+              // if mockComputedSignals is enabled (default),
+              // you must provide an initial value for each computed signals
               initialComputedValues: {
                 totalPages: 0,
                 pagination: { selectedPage: 0, totalPages: 0 },

@@ -3,6 +3,10 @@
  */
 
 export {
-  RxMethod, FakeRxMethod, FAKE_RX_METHOD,
-  newMockRxMethod,
-  asFakeRxMethod, getRxMethodFake } from './lib/fake-rx-method';
+  RxMethod,
+  FakeRxMethod,
+  FAKE_RX_METHOD,
+  newFakeRxMethod as newMockRxMethod,
+  asFakeRxMethod,
+  getRxMethodFake,
+} from './lib/fake-rx-method';

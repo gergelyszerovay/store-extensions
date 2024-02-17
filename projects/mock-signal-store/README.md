@@ -34,7 +34,7 @@ The component renders the following dumb compoents, based on the state in the st
 
 The component updates the state of the Store, when:
 - the `selectedPage` or `pageSize` values change on the URL
-- or the user changes the selected page on the pagination compoennt
+- or the user changes the selected page on the pagination component
 
 ### SignalStore for the Article list component
 

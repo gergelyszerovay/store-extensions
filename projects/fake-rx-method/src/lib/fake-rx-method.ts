@@ -1,13 +1,13 @@
-import { Signal } from "@angular/core";
-import { rxMethod } from "@ngrx/signals/rxjs-interop";
-import { Observable, Unsubscribable, tap } from "rxjs"
-import { SinonSpy, fake } from "sinon";
+import { Signal } from '@angular/core';
+import { rxMethod } from '@ngrx/signals/rxjs-interop';
+import { Observable, Unsubscribable, tap } from 'rxjs';
+import { SinonSpy, fake } from 'sinon';
 
 /**
  * rxMethod mock, it's an extended version of RxMethod, with an additional
  * [FAKE_RX_METHOD] property containing a Sinon fake (SinonSpy<[T]>).
  */
-export const FAKE_RX_METHOD = Symbol("FAKE_RX_METHOD");
+export const FAKE_RX_METHOD = Symbol('FAKE_RX_METHOD');
 export type FakeRxMethod<T> = RxMethod<T> & { [FAKE_RX_METHOD]: SinonSpy<[T]> };
 
 /**
@@ -21,7 +21,7 @@ export type FakeRxMethod<T> = RxMethod<T> & { [FAKE_RX_METHOD]: SinonSpy<[T]> };
  *
  * @returns {FakeRxMethod<T>} A new rxMethod mock.
  */
-export function newMockRxMethod<T>(): FakeRxMethod<T> {
+export function newFakeRxMethod<T>(): FakeRxMethod<T> {
   const f = fake<[T]>();
   const r = rxMethod(tap((x) => f(x))) as FakeRxMethod<T>;
   r[FAKE_RX_METHOD] = f;
@@ -30,7 +30,7 @@ export function newMockRxMethod<T>(): FakeRxMethod<T> {
 
 /**
  * Type of an rxMethod, @ngrx/signals/rxjs-interop doesn't export it.
-*/
+ */
 type RxMethodInput<Input> = Input | Observable<Input> | Signal<Input>;
 export type RxMethod<Input> = ((input: RxMethodInput<Input>) => Unsubscribable) & Unsubscribable;
 
