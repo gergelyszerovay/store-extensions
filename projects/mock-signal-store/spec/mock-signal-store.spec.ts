@@ -20,7 +20,7 @@ import {
   provideMockSignalStore,
 } from '../src/mock-signal-store';
 import { getRxMethodFake } from '../src/fake-rx-method';
-import sinon from 'sinon';
+import { fake, replace } from 'sinon';
 
 @Injectable()
 class SampleService {
@@ -268,7 +268,7 @@ describe('mockSignalStore', () => {
     it('should return the input wihtout change', () => {
       TestBed.runInInjectionContext(() => {
         const o = { fnc: () => 1 };
-        sinon.replace(o, 'fnc', sinon.fake());
+        replace(o, 'fnc', fake());
         expect(asSinonSpy(o.fnc)).toEqual(o.fnc);
       });
     });
