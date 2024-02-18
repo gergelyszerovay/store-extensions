@@ -4,21 +4,18 @@ import {
   UnwrapProvider,
   asMockSignalStore,
   asSinonSpy,
+  getRxMethodFake,
   provideMockSignalStore,
 } from '@gergelyszerovay/mock-signal-store';
 import { ArticlesService } from '../services/articles.service';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { patchState } from '@ngrx/signals';
 import { screen } from '@testing-library/angular';
 import { UiArticleListComponent } from '../ui-components/ui-article-list.component';
 import { Article, Articles } from '../models/article.model';
 import { By } from '@angular/platform-browser';
 import { ArticleListComponent_SSF } from './article-list-signal-store-feature.component';
 import { ArticleListSignalStoreWithFeature } from './article-list-signal-store-with-feature.store';
-import { EntityMap } from '@ngrx/signals/entities';
 import { UiPaginationComponent } from '../ui-components/ui-pagination.component';
-import { getRxMethodFake } from '@gergelyszerovay/fake-rx-method';
-import { HttpRequestStates } from '@gergelyszerovay/signal-store-data-service-feature';
 
 describe('ArticleListComponent_SSF - mockComputedSignals: true + mock all child components', () => {
   let component: ArticleListComponent_SSF;

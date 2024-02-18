@@ -8,12 +8,6 @@ import {
 } from '../src/fake-rx-method';
 import { Subject } from 'rxjs';
 
-// import { RxMethod } from 'modules/signals/rxjs-interop/src/rx-method';
-import { Observable, Unsubscribable } from 'rxjs';
-import { Signal } from '@angular/core';
-type RxMethodInput<Input> = Input | Observable<Input> | Signal<Input>;
-export type RxMethod<Input> = ((input: RxMethodInput<Input>) => Unsubscribable) & Unsubscribable;
-
 @Component({
   selector: 'app-test',
   standalone: true,
