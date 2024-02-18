@@ -16,9 +16,11 @@ import {
   MockSignalStore,
   UnwrapProvider,
   asMockSignalStore,
+  asSinonSpy,
   provideMockSignalStore,
 } from '../src/mock-signal-store';
 import { getRxMethodFake } from '../src/fake-rx-method';
+import sinon from 'sinon';
 
 @Injectable()
 class SampleService {
@@ -72,11 +74,11 @@ const SampleSignalStore = signalStore(
           },
           (errorResponse: HttpErrorResponse) => {
             store.setNestedObjectValue(0);
-          }
-        )
-      )
+          },
+        ),
+      ),
     ),
-  }))
+  })),
 );
 
 describe('mockSignalStore', () => {
@@ -259,6 +261,15 @@ describe('mockSignalStore', () => {
             nestedObjectValue: 40,
           },
         },
+      });
+    });
+  });
+  describe('asSinonSpy', () => {
+    it('should return the input wihtout change', () => {
+      TestBed.runInInjectionContext(() => {
+        const o = { fnc: () => 1 };
+        sinon.replace(o, 'fnc', sinon.fake());
+        expect(asSinonSpy(o.fnc)).toEqual(o.fnc);
       });
     });
   });

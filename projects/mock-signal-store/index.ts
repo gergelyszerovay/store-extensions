@@ -5,7 +5,7 @@
 export {
   FakeRxMethod,
   FAKE_RX_METHOD,
-  newMockRxMethod,
+  newFakeRxMethod,
   asFakeRxMethod,
   getRxMethodFake,
 } from './src/fake-rx-method';

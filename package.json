@@ -26,6 +26,8 @@
     "@ngrx/component-store": "^17.1.0",
     "@ngrx/operators": "^17.1.0",
     "@ngrx/signals": "^17.1.0",
+    "@storybook/jest": "^0.2.3",
+    "@storybook/testing-library": "^0.2.2",
     "@types/node": "^20.11.19",
     "ngxtension": "^1.9.8",
     "recursive-diff": "^1.0.9",

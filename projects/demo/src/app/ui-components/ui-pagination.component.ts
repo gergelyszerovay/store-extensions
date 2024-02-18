@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, Output, computed, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  computed,
+  input,
+} from '@angular/core';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { radixChevronLeft, radixChevronRight } from '@ng-icons/radix-icons';
 
@@ -21,17 +30,22 @@ import { radixChevronLeft, radixChevronRight } from '@ng-icons/radix-icons';
             aria-label="Go to previous page"
             href="#"
             [disabled]="selectedPage() === 0"
-            ><ng-icon name="radixChevronLeft"/><span>Previous</span></button
           >
+            <ng-icon name="radixChevronLeft" /><span>Previous</span>
+          </button>
         </li>
         @for (page of pages(); track page) {
           <li class="">
             <button
-              class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium  disabled:pointer-events-none disabled:opacity-50 hover:bg-yellow-500 h-10 w-8 {{ selectedPage() === page ? 'border border-black bg-background' : '' }}"
+              class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium  disabled:pointer-events-none disabled:opacity-50 hover:bg-yellow-500 h-10 w-8 {{
+                selectedPage() === page ? 'border border-black bg-background' : ''
+              }}"
+              role="button"
               href="#"
               (click)="onPageSelected.emit(page)"
-              >{{page + 1}}</button
             >
+              {{ page + 1 }}
+            </button>
           </li>
         }
         <li class="">
@@ -39,8 +53,9 @@ import { radixChevronLeft, radixChevronRight } from '@ng-icons/radix-icons';
             class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium  disabled:pointer-events-none disabled:opacity-50 hover:bg-yellow-500 h-10 px-4 py-2 gap-1 pr-2.5"
             aria-label="Go to next page"
             [disabled]="selectedPage() === totalPages() - 1"
-            ><span>Next</span
-            ><ng-icon name="radixChevronRight"/></button>
+          >
+            <span>Next</span><ng-icon name="radixChevronRight" />
+          </button>
         </li>
       </ul>
     </nav>
@@ -58,12 +73,14 @@ export class UiPaginationComponent implements OnChanges {
 
   constructor() {}
 
-  ngOnChanges(): void {
-  }
+  ngOnChanges(): void {}
 }
 
-
-function calculatePaginatorPages(totalPages: number, selectedPage: number, pagesToShow: number): number[] {
+function calculatePaginatorPages(
+  totalPages: number,
+  selectedPage: number,
+  pagesToShow: number,
+): number[] {
   const pages: number[] = [];
 
   // Handle edge cases
@@ -73,7 +90,7 @@ function calculatePaginatorPages(totalPages: number, selectedPage: number, pages
 
   if (totalPages <= pagesToShow) {
     // If totalPages is less than or equal to the number of pages to show, display all pages
-    for (let i = 1; i <= totalPages; i++) {
+    for (let i = 0; i <= totalPages; i++) {
       pages.push(i);
     }
   } else {

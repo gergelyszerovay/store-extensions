@@ -18,31 +18,7 @@ import { LogSignalStoreState } from '@gergelyszerovay/signal-store-logger';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [UiArticleListComponent, UiPaginationComponent, HttpRequestStateErrorPipe],
   providers: [ArticleListSignalStore],
-  template: `
-    <h1 class="text-xl font-semibold my-4">SignalStore</h1>
-    <!-- 👇 Main UI state: initial / fetching 📡 -->
-    @if (
-      store.httpRequestState() === HttpRequestStates.INITIAL ||
-      store.httpRequestState() === HttpRequestStates.FETCHING
-    ) {
-      <div>Loading...</div>
-    }
-    <!-- 👇 Main UI state: fetched 📡 -->
-    @if (store.httpRequestState() === HttpRequestStates.FETCHED) {
-      <!-- 👇 Article list UI component -->
-      <app-ui-article-list [articles]="store.articles()" />
-      <!-- 👇 Pagination UI component -->
-      <app-ui-pagination
-        [selectedPage]="store.pagination().selectedPage"
-        [totalPages]="store.pagination().totalPages"
-        (onPageSelected)="store.setSelectedPage($event); store.loadArticles()"
-      />
-    }
-    <!-- 👇 Main UI state: error 📡 -->
-    @if (store.httpRequestState() | httpRequestStateErrorPipe; as errorMessage) {
-      {{ errorMessage }}
-    }
-  `,
+  templateUrl: 'article-list-signal-store.component.html',
 })
 export class ArticleListComponent_SS {
   // we get these from the router, as we use withComponentInputBinding()

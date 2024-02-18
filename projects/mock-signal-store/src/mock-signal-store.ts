@@ -196,10 +196,10 @@ export function provideMockSignalStore<ClassType extends StateSignal<object>>(
       );
 
       if (params?.debug === true) {
-        console.log('pluckerSignals', pluckerSignals);
-        console.log('combinedSignals', combinedSignals);
-        console.log('rxMethods', rxMethods);
-        console.log('methods', methods);
+        console.debug('pluckerSignals', pluckerSignals);
+        console.debug('combinedSignals', combinedSignals);
+        console.debug('rxMethods', rxMethods);
+        console.debug('methods', methods);
       }
 
       if (params?.mockComputedSignals !== false) {
@@ -237,7 +237,7 @@ export function provideMockSignalStore<ClassType extends StateSignal<object>>(
       }
 
       if (params?.debug === true) {
-        console.log('Mocked store:', store);
+        console.debug('Mocked store:', store);
       }
 
       return store as MockSignalStore<ClassType>;
@@ -260,7 +260,7 @@ export function asMockSignalStore<T>(s: T): MockSignalStore<T> {
 }
 
 /**
- * Converts the type of a function to a SInon Spy
+ * Converts the type of a function to a Sinon Spy
  */
 export function asSinonSpy<TArgs extends readonly any[] = any[], TReturnValue = any>(
   fn: (...x: TArgs) => TReturnValue,

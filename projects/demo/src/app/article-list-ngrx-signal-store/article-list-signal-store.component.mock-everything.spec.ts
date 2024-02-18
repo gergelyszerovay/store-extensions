@@ -7,6 +7,7 @@ import {
   asMockSignalStore,
   asSinonSpy,
   provideMockSignalStore,
+  getRxMethodFake,
 } from '@gergelyszerovay/mock-signal-store';
 import { ArticlesService, HttpRequestStates } from '../services/articles.service';
 import { MockComponent, MockProvider } from 'ng-mocks';
@@ -15,7 +16,6 @@ import { screen } from '@testing-library/angular';
 import { UiArticleListComponent } from '../ui-components/ui-article-list.component';
 import { Article, Articles } from '../models/article.model';
 import { By } from '@angular/platform-browser';
-import { getRxMethodFake } from '@gergelyszerovay/fake-rx-method';
 import { UiPaginationComponent } from '../ui-components/ui-pagination.component';
 
 describe('ArticleListComponent_SS - mockComputedSignals: true + mock all child components', () => {
