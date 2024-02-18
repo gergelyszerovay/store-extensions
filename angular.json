@@ -150,7 +150,9 @@
             "configDir": "projects/demo/.storybook",
             "browserTarget": "demo:build",
             "compodoc": false,
-            "port": 6006
+            "port": 6006,
+            "assets": ["projects/demo/src/favicon.ico", "projects/demo/src/assets"],
+            "styles": ["projects/demo/src/styles.scss"]
           }
         },
         "build-storybook": {
