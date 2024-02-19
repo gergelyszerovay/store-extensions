@@ -9,7 +9,7 @@ type RxMethodInput<Input> = Input | Observable<Input> | Signal<Input>;
 export type RxMethod<Input> = ((input: RxMethodInput<Input>) => Unsubscribable) & Unsubscribable;
 
 /**
- * rxMethod mock, it's an extended version of RxMethod, with an additional
+ * FakeRxMethod mock type, it's an extended version of RxMethod, with an additional
  * [FAKE_RX_METHOD] property containing a Sinon fake (SinonSpy<[T]>).
  */
 export const FAKE_RX_METHOD = Symbol('FAKE_RX_METHOD');
@@ -35,8 +35,6 @@ export function newFakeRxMethod<T>(): FakeRxMethod<T> {
 
 /**
  * Converts the type of a (mocked) RxMethod into a FakeRxMethod.
- *
- * TODO: add an example use case
  *
  * @template T - The argument type of the RxMethod.
  * @param {RxMethod<T>} rxMethod - The (mocked) RxMethod to be converted.

@@ -36,7 +36,6 @@ type Method<T extends readonly any[] = any[]> = (...args: T) => unknown;
 
 /**
  * Type for a mocked singalStore:
- *
  * - Signals are replaced by WritableSignals.
  * - RxMethods are replaced by FakeRxMethods.
  * - Functions are replaced by Sinon fakes.
@@ -253,14 +252,14 @@ export function provideMockSignalStore<ClassType extends StateSignal<object>>(
 export type UnwrapProvider<T> = T extends ProviderToken<infer U> ? U : never;
 
 /**
- * Converts the type of a SignalStore to MockSignalStore
+ * Converts the type of a (mocked) SignalStore to a MockSignalStore
  */
 export function asMockSignalStore<T>(s: T): MockSignalStore<T> {
   return s as MockSignalStore<T>;
 }
 
 /**
- * Converts the type of a function to a Sinon Spy
+ * Converts the type of a (mocked) function to a Sinon Spy
  */
 export function asSinonSpy<TArgs extends readonly any[] = any[], TReturnValue = any>(
   fn: (...x: TArgs) => TReturnValue,

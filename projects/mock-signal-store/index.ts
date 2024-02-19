@@ -11,7 +11,7 @@ export {
 } from './src/fake-rx-method';
 
 /*
- * Public API Surface of ngx-mock-signal-store
+ * Public API Surface of mock-signal-store
  */
 
 export {
