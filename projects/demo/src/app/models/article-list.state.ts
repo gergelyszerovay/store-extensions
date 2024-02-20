@@ -1,4 +1,7 @@
-import { HttpRequestState, HttpRequestStates } from '../services/articles.service';
+import {
+  HttpRequestState,
+  HttpRequestStates,
+} from '../services/articles.service';
 import { Articles } from './article.model';
 
 export type RouteParamsPaginatonState = {
