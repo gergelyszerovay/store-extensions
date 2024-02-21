@@ -21,4 +21,5 @@ export {
   UnwrapProvider,
   asMockSignalStore,
   asSinonSpy,
+  asWritableSignal,
 } from './src/mock-signal-store';

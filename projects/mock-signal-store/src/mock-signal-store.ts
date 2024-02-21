@@ -20,7 +20,10 @@ import { StateSignal } from '@ngrx/signals/src/state-signal';
 // import { RxMethod } from 'modules/signals/rxjs-interop/src/rx-method';
 import { Observable, Unsubscribable } from 'rxjs';
 type RxMethodInput<Input> = Input | Observable<Input> | Signal<Input>;
-export type RxMethod<Input> = ((input: RxMethodInput<Input>) => Unsubscribable) & Unsubscribable;
+export type RxMethod<Input> = ((
+  input: RxMethodInput<Input>
+) => Unsubscribable) &
+  Unsubscribable;
 
 /**
  * Constructor type.
@@ -166,7 +169,7 @@ export type ProvideMockSignalStoreParams<T> = {
 
 export function provideMockSignalStore<ClassType extends StateSignal<object>>(
   classConstructor: Constructor<ClassType>,
-  params?: ProvideMockSignalStoreParams<ClassType>,
+  params?: ProvideMockSignalStoreParams<ClassType>
 ): Provider {
   let cachedStore: ClassType | undefined = undefined;
   return {
@@ -182,16 +185,23 @@ export function provideMockSignalStore<ClassType extends StateSignal<object>>(
 
       const keys = Object.keys(store) as Array<keyof ClassType>;
 
-      const pluckerSignals = keys.filter((k) => isSignal(store[k]) && k in getState(store));
-      const combinedSignals = keys.filter((k) => isSignal(store[k]) && !pluckerSignals.includes(k));
+      const pluckerSignals = keys.filter(
+        (k) => isSignal(store[k]) && k in getState(store)
+      );
+      const combinedSignals = keys.filter(
+        (k) => isSignal(store[k]) && !pluckerSignals.includes(k)
+      );
       const rxMethods = keys.filter(
         (k) =>
           typeof store[k] === 'function' &&
           !isSignal(store[k]) &&
-          'unsubscribe' in (store[k] as object),
+          'unsubscribe' in (store[k] as object)
       );
       const methods = keys.filter(
-        (k) => typeof store[k] === 'function' && !isSignal(store[k]) && !rxMethods.includes(k),
+        (k) =>
+          typeof store[k] === 'function' &&
+          !isSignal(store[k]) &&
+          !rxMethods.includes(k)
       );
 
       if (params?.debug === true) {
@@ -203,7 +213,10 @@ export function provideMockSignalStore<ClassType extends StateSignal<object>>(
 
       if (params?.mockComputedSignals !== false) {
         combinedSignals.forEach((k) => {
-          if (params?.initialComputedValues && k in params.initialComputedValues) {
+          if (
+            params?.initialComputedValues &&
+            k in params.initialComputedValues
+          ) {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             store[k] = signal(params?.initialComputedValues?.[k]);
@@ -261,8 +274,16 @@ export function asMockSignalStore<T>(s: T): MockSignalStore<T> {
 /**
  * Converts the type of a (mocked) function to a Sinon Spy
  */
-export function asSinonSpy<TArgs extends readonly any[] = any[], TReturnValue = any>(
-  fn: (...x: TArgs) => TReturnValue,
-): SinonSpy<TArgs, TReturnValue> {
+export function asSinonSpy<
+  TArgs extends readonly any[] = any[],
+  TReturnValue = any,
+>(fn: (...x: TArgs) => TReturnValue): SinonSpy<TArgs, TReturnValue> {
   return fn as unknown as SinonSpy<TArgs, TReturnValue>;
+}
+
+/**
+ * Converts the type of a (mocked) Signal to a WritableSignal
+ */
+export function asWritableSignal<T>(s: Signal<T>): WritableSignal<T> {
+  return s as WritableSignal<T>;
 }

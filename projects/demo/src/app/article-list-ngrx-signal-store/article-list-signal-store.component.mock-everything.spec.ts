@@ -4,6 +4,7 @@ import { ArticleListSignalStore } from './article-list-signal-store.store';
 import {
   UnwrapProvider,
   asSinonSpy,
+  asWritableSignal,
   getRxMethodFake,
   newFakeRxMethod,
 } from '@gergelyszerovay/mock-signal-store';
@@ -145,18 +146,14 @@ describe('ArticleListComponent_SS - mockComputedSignals: true + mock all child c
       let uiPaginationComponent: UiPaginationComponent;
       let uiArticleListComponent: UiArticleListComponent;
       beforeEach(() => {
-        (store.httpRequestState as WritableSignal<HttpRequestState>).set(
-          HttpRequestStates.FETCHED
-        );
-        (store.articles as WritableSignal<Articles>).set([
+        asWritableSignal(store.httpRequestState).set(HttpRequestStates.FETCHED);
+        asWritableSignal(store.articles).set([
           { slug: 'slug 1', id: 1 } as Article,
         ]);
-        (
-          store.pagination as WritableSignal<{
-            totalPages: number;
-            selectedPage: number;
-          }>
-        ).set({ totalPages: 4, selectedPage: 1 });
+        asWritableSignal(store.pagination).set({
+          totalPages: 4,
+          selectedPage: 1,
+        });
         fixture.detectChanges();
 
         uiArticleListComponent = fixture.debugElement.queryAll(
@@ -199,12 +196,10 @@ describe('ArticleListComponent_SS - mockComputedSignals: true + mock all child c
         });
 
         it('should get the selected page and the number of the total pages from the store', () => {
-          (
-            store.pagination as WritableSignal<{
-              totalPages: number;
-              selectedPage: number;
-            }>
-          ).set({ selectedPage: 6, totalPages: 7 });
+          asWritableSignal(store.pagination).set({
+            selectedPage: 6,
+            totalPages: 7,
+          });
           fixture.detectChanges();
           expect(uiPaginationComponent.selectedPage).toBe(6);
           expect(uiPaginationComponent.totalPages).toBe(7);

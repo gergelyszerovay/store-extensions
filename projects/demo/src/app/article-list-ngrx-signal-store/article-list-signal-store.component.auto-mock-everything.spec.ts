@@ -8,6 +8,7 @@ import {
   asSinonSpy,
   provideMockSignalStore,
   getRxMethodFake,
+  asWritableSignal,
 } from '@gergelyszerovay/mock-signal-store';
 import {
   ArticlesService,
@@ -26,7 +27,7 @@ describe('ArticleListComponent_SS - mockComputedSignals: true + mock all child c
   let fixture: ComponentFixture<ArticleListComponent_SS>;
   // we have to use UnwrapProvider<T> to get the real type of a SignalStore
   let store: UnwrapProvider<typeof ArticleListSignalStore>;
-  let mockStore: MockSignalStore<typeof store>;
+  // let store: MockSignalStore<typeof store>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -59,7 +60,7 @@ describe('ArticleListComponent_SS - mockComputedSignals: true + mock all child c
     component = fixture.componentInstance;
     // access to a service provided on the component level
     store = fixture.debugElement.injector.get(ArticleListSignalStore);
-    mockStore = asMockSignalStore(store);
+    // store = asMockSignalStore(store);
     fixture.detectChanges();
   });
 
@@ -69,29 +70,29 @@ describe('ArticleListComponent_SS - mockComputedSignals: true + mock all child c
 
   describe('router inputs ➡️ store (effect)', () => {
     it("should update the store's state initially", () => {
-      expect(getRxMethodFake(mockStore.loadArticles).callCount).toBe(1);
+      expect(getRxMethodFake(store.loadArticles).callCount).toBe(1);
     });
 
     it('should call loadArticles if the selectedPage router input changes', () => {
-      getRxMethodFake(mockStore.loadArticles).resetHistory();
+      getRxMethodFake(store.loadArticles).resetHistory();
       fixture.componentRef.setInput('selectedPage', '22');
       fixture.detectChanges();
-      expect(getRxMethodFake(mockStore.loadArticles).callCount).toBe(1);
+      expect(getRxMethodFake(store.loadArticles).callCount).toBe(1);
     });
 
     it('should call loadArticles if the pageSize router input changes', () => {
-      getRxMethodFake(mockStore.loadArticles).resetHistory();
+      getRxMethodFake(store.loadArticles).resetHistory();
       fixture.componentRef.setInput('pageSize', '11');
       fixture.detectChanges();
-      expect(getRxMethodFake(mockStore.loadArticles).callCount).toBe(1);
+      expect(getRxMethodFake(store.loadArticles).callCount).toBe(1);
     });
 
     it('should call loadArticles only once, even if the both the selectedPage and pageSize router inputs change', () => {
-      getRxMethodFake(mockStore.loadArticles).resetHistory();
+      getRxMethodFake(store.loadArticles).resetHistory();
       fixture.componentRef.setInput('selectedPage', '22');
       fixture.componentRef.setInput('pageSize', '11');
       fixture.detectChanges();
-      expect(getRxMethodFake(mockStore.loadArticles).callCount).toBe(1);
+      expect(getRxMethodFake(store.loadArticles).callCount).toBe(1);
     });
   });
 
@@ -131,7 +132,10 @@ describe('ArticleListComponent_SS - mockComputedSignals: true + mock all child c
           httpRequestState: HttpRequestStates.FETCHED,
           articles: [{ slug: 'slug 1', id: 1 } as Article],
         }));
-        mockStore.pagination.set({ totalPages: 4, selectedPage: 1 });
+        asWritableSignal(store.pagination).set({
+          totalPages: 4,
+          selectedPage: 1,
+        });
         fixture.detectChanges();
 
         uiArticleListComponent = fixture.debugElement.queryAll(
@@ -174,7 +178,10 @@ describe('ArticleListComponent_SS - mockComputedSignals: true + mock all child c
         });
 
         it('should get the selected page and the number of the total pages from the store', () => {
-          mockStore.pagination.set({ selectedPage: 6, totalPages: 7 });
+          asWritableSignal(store.pagination).set({
+            selectedPage: 6,
+            totalPages: 7,
+          });
           fixture.detectChanges();
           expect(uiPaginationComponent.selectedPage).toBe(6);
           expect(uiPaginationComponent.totalPages).toBe(7);
@@ -182,20 +189,20 @@ describe('ArticleListComponent_SS - mockComputedSignals: true + mock all child c
 
         describe('When the user selects a page', () => {
           beforeEach(() => {
-            getRxMethodFake(mockStore.loadArticles).resetHistory();
-            asSinonSpy(mockStore.setSelectedPage).resetHistory();
+            getRxMethodFake(store.loadArticles).resetHistory();
+            asSinonSpy(store.setSelectedPage).resetHistory();
 
             uiPaginationComponent.onPageSelected.emit(2);
           });
           it('should update the selected page in the store', () => {
-            expect(asSinonSpy(mockStore.setSelectedPage).callCount).toBe(1);
-            expect(asSinonSpy(mockStore.setSelectedPage).lastCall.args).toEqual(
-              [2]
-            );
+            expect(asSinonSpy(store.setSelectedPage).callCount).toBe(1);
+            expect(asSinonSpy(store.setSelectedPage).lastCall.args).toEqual([
+              2,
+            ]);
           });
 
           it('should fetch the articles from the server', () => {
-            expect(getRxMethodFake(mockStore.loadArticles).callCount).toBe(1);
+            expect(getRxMethodFake(store.loadArticles).callCount).toBe(1);
           });
         });
       });
